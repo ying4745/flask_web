@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}个人资料{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <img class="img-rounded profile-thumbnail" src="{{ url_for('static', filename=user.avatar() ) }}">
+<div class="profile-header">
+    <h2>个人资料</h2>
+    <ul>
+        <li><strong>名字：</strong>{{ user.name }}</li>
+        <li><strong>邮箱：</strong>{{ user.email }}</li>
+        <li><strong>地址：</strong>{{ user.location }}</li>
+        <li><strong>个人风采：</strong>{{ user.about_me }}</li>
+    </ul>
+    <p>
+        {% if user == current_user %}
+        <a class="btn btn-default" href="{{ url_for('auth.user',username=user.username) }}">修改</a>
+        {% endif %}
+        {% if current_user.is_administrator() %}
+        <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin',id=user.id) }}">修改 [管理员]</a>
+        {% endif %}
+    </p>
+</div>
+</div>
+<h3>{{ user.username }}的文章</h3>
+{% include '_articles.html' %}
+{% endblock %}

@@ -1,0 +1,23 @@
+<ul class="articles">
+    {% for article in articles %}
+    <li class="article">
+        <div class="article-user">
+        <div class="profile-thumbnail">
+            <a href="{{ url_for('auth.show_user', username=article.author.username) }}">
+                <img class="img-rounded profile-thumbnail"
+                    src="{{ url_for('static',filename=article.author.avatar()) }}"
+                height="45" width="45">
+            </a>
+        </div>
+        <div class="article-author">
+            <a href="{{ url_for('auth.show_user', username=article.author.username) }}">
+                {{ article.author.username }}
+            </a>
+        </div>
+        </div>
+        <div class="article-date">{{ article.timestamp }}</div>
+        <div class="article-title"><a href="#">{{ article.title }}</a></div>
+        <div class="article-content">{{ article.content }}</div>
+    </li>
+    {% endfor %}
+</ul>

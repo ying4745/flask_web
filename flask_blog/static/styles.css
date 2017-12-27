@@ -1,0 +1,41 @@
+.profile-thumbnail {
+    position: absolute;
+}
+.profile-header {
+    min-height: 260px;
+    margin-left: 280px;
+}
+ul.articles {
+    list-style-type: none;
+    padding: 0px;
+    margin: 16px 0px 0px 0px;
+    border-top: 1px solid #e0e0e0;
+}
+ul.articles li.article {
+    padding: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+ul.articles li.article:hover {
+    background-color: #f0f0f0;
+}
+div.article-date {
+    float: right;
+}
+div.article-author {
+    margin-top: 45px;
+    font-weight: bold;
+}
+div.article-thumbnail {
+    position: absolute;
+}
+div.article-content {
+    text-indent: 25px;
+    margin-left: 48px;
+    min-height: 48px;
+}
+div.article-user {
+    float: left
+}
+div.article-title {
+    margin-left: 55px;
+}
