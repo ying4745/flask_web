@@ -4,6 +4,11 @@ from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 import logging
 
+configure_kwargs = {
+    "compare_type": True,
+    "compare_server_default": True,
+}
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

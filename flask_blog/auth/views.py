@@ -83,8 +83,10 @@ def user(username):
 @auth.route('/user/<username>')
 @login_required
 def show_user(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        abort(404)
-    articles = user.articles.order_by(Article.timestamp.desc()).all()
-    return render_template('auth/show_user.html',user=user, articles=articles)
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    pagination = user.articles.order_by(Article.timestamp.desc()).paginate(
+                    page, per_page=18, error_out=False)
+    articles = pagination.items
+    return render_template('auth/show_user.html',user=user, articles=articles,
+                           pagination=pagination)

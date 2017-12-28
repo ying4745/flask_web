@@ -39,3 +39,9 @@ div.article-user {
 div.article-title {
     margin-left: 55px;
 }
+div.pagination {
+    width: 100%;
+    text-align: center;
+    padding: 0px;
+    margin: 0px;
+}

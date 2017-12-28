@@ -1,4 +1,4 @@
-from flask import render_template, flash, url_for, redirect, session, abort
+from flask import render_template, flash, url_for, redirect, request, abort
 from . import main
 from .forms import EditProfiledAdminForm, ArticleForm
 from flask_login import login_required, current_user
@@ -16,8 +16,12 @@ def index():
                           author=current_user._get_current_object())
         db.session.add(article)
         return redirect(url_for('.index'))
-    articles = Article.query.order_by(Article.timestamp.desc()).all()
-    return render_template('index.html', form=form, articles=articles)
+    page = request.args.get('page', 1, type=int)
+    pagination = Article.query.order_by(Article.timestamp.desc()).paginate(
+                page, per_page=18, error_out=False)
+    articles = pagination.items
+    return render_template('index.html', form=form, articles=articles,
+                           pagination=pagination)
 
 
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
