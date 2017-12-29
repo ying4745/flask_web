@@ -30,18 +30,45 @@ div.article-thumbnail {
 }
 div.article-content {
     text-indent: 25px;
-    margin-left: 48px;
-    min-height: 48px;
+    padding-left: 15px;
+    margin-left: 55px;
+    min-height: 50px;
 }
 div.article-user {
     float: left
 }
 div.article-title {
+    font-size: 140%;
     margin-left: 55px;
 }
+div.article-footer {
+    text-align: right;
 div.pagination {
     width: 100%;
     text-align: center;
     padding: 0px;
     margin: 0px;
+}
+div.flask-pagedown-preview {
+    margin: 10px 0px 10px 0px;
+    border: 1px solid #e0e0e0;
+    padding: 4px;
+}
+div.flask-pagedown-preview h1 {
+    font-size: 140%;
+}
+div.flask-pagedown-preview h2 {
+    font-size: 130%;
+}
+div.flask-pagedown-preview h3 {
+    font-size: 120%;
+}
+.article-content h1 {
+    font-size: 140%;
+}
+.article-content h2 {
+    font-size: 130%;
+}
+.article-content h3 {
+    font-size: 120%;
 }

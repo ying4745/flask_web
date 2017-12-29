@@ -3,9 +3,11 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask import current_app
 from . import login_manager, db
 from datetime import datetime
+from markdown import markdown
+import bleach
 
 
-class Permission:
+class Permission:    # 权限
     FOLLOW = 0x01
     COMMENT = 0x02
     WRITE_ARTICLES = 0x04
@@ -120,7 +122,7 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
+# 匿名用户
 class AnonymousUser(AnonymousUserMixin):
     def can(self,permissions):
         return False
@@ -138,10 +140,11 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), unique=True)
     content = db.Column(db.Text)
+    content_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.now)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    @staticmethod
+    @staticmethod   # 生成虚拟数据
     def generate_fake(count=100):
         from random import seed, randint
         import forgery_py
@@ -156,9 +159,22 @@ class Article(db.Model):
                         author=u)
             db.session.add(a)
             db.session.commit()
+
+    @staticmethod  # 此装饰器表示此方法以类名调用
+    def on_changed_content(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote','code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.content_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
+
     def __repr__(self):
         return '<Article %r>' % self.title
 
+ # on_changed_body 函数注册在 content 字段上，是 SQLAlchemy“set”事件的监听程序，这意
+ # 味着只要这个类实例的 content 字段设了新值，函数就会自动被调用
+db.event.listen(Article.content, 'set', Article.on_changed_content)
 
 @login_manager.user_loader
 def load_user(user_id):

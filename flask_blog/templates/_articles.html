@@ -16,8 +16,24 @@
         </div>
         </div>
         <div class="article-date">{{ article.timestamp }}</div>
-        <div class="article-title"><a href="#">{{ article.title }}</a></div>
-        <div class="article-content">{{ article.content }}</div>
+        <div class="article-title"><a href="{{ url_for('main.article', id=article.id) }}">
+            {{ article.title }}</a></div>
+        <div class="article-content">
+            {% if article.content_html %}
+                {{ article.content_html | safe }}
+            {% else %}
+                {{ article.content }}
+            {% endif %}
+            <div class="article-footer">
+                <a href="{{ url_for('main.edit', id=article.id) }}">
+                    {% if current_user == article.author %}
+                    <span class="label label-primary">编辑</span>
+                    {% elif current_user.is_administrator() %}
+                     <span class="label label-danger">编辑[管理员]</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
     </li>
     {% endfor %}
 </ul>

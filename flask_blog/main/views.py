@@ -47,3 +47,25 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('main/edit_profile.html', form=form)
+
+@main.route('/article/<int:id>')
+def article(id):
+    article = Article.query.get_or_404(id)
+    return render_template('article.html', articles=[article])
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    article = Article.query.get_or_404(id)
+    if current_user != article.author and not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    form = ArticleForm()
+    if form.validate_on_submit():
+        article.title = form.title.data
+        article.content = form.content.data
+        db.session.add(article)
+        flash('文章已经更新！')
+        return redirect(url_for('.article', id=article.id))
+    form.title.data = article.title
+    form.content.data = article.content
+    return render_template('edit_article.html', form=form)
