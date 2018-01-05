@@ -3,10 +3,12 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'this is a secret string'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    # 每次请求结束后都会自动提交数据库中的变动
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True  # 每次请求结束后都会自动提交数据库中的变动
     BOOTSTRAP_SERVE_LOCAL = True # 使用本地 bootstrap 资源
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') # 配置管理员邮箱
+    FLASKY_ARTICLES_PER_PAGE = 18
+    FLASKY_FOLLOWERS_PER_PAGE = 48
+    FLASKY_COMMENTS_PER_PAGE = 48
     # MAIL_SERVER = 'smtp.163.com'
     # MAIL_PORT = 993
     # MAIL_USE_TLS = True

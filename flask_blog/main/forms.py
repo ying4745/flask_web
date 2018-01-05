@@ -39,3 +39,8 @@ class ArticleForm(FlaskForm):
     title = StringField('标题', validators=[DataRequired(), Length(1, 128)])
     content = PageDownField('正文', validators=[DataRequired()])
     submit = SubmitField('发布')
+
+
+class CommentForm(FlaskForm):
+    content = PageDownField('', validators=[DataRequired()])
+    submit = SubmitField('发布')

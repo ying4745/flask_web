@@ -14,7 +14,17 @@
     {{ wtf.quick_form(form) }}
     {% endif %}
 </div>
-{% include '_articles.html' %}
+<div class="article-tabs">
+    <ul class="nav nav-tabs">
+        <li {% if not show_followed %} class='active'{% endif %}>
+            <a href="{{ url_for('.show_all') }}">全部文章</a>
+        </li>
+        <li {% if show_followed %} class="active" {% endif %}>
+            <a href="{{ url_for('.show_followed') }}">我的关注</a>
+        </li>
+    </ul>
+    {% include '_articles.html' %}
+</div>
 {% if pagination %}
 <div class="pagination">
     {{ macros.pagination_widget(pagination, 'main.index') }}
