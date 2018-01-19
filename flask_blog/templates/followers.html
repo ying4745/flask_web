@@ -13,14 +13,12 @@
     {% if user != follow.user %}
     <tr>
         <td>
-            <a href="{{ url_for('auth.show_user', username=follow.user.username) }}">
-                <img class="img-rounded"
-                    src="{{ url_for('static',filename=follow.user.avatar()) }}"
-                height="28" width="28">
+            <a href="{{ url_for('main.user', username=follow.user.username) }}">
+                <img class="img-rounded" src="{{ follow.user.gravatar(size=25) }}">
                 {{ follow.user.username }}
             </a>
         </td>
-        <td>{{ follow.timestamp }}</td>
+        <td>{{ moment(follow.timestamp).format('YYYY年M月D日 h:mm:ss') }}</td>
     </tr>
     {% endif %}
     {% endfor %}

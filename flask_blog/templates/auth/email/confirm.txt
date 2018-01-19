@@ -1,0 +1,6 @@
+亲爱的{{ user.username }}
+    欢迎您来到 Flasky ！
+    为了确认您的帐户，请点击以下链接：
+        {{ url_for('auth.confirm', token=token, _external=True) }}
+    再次感谢你的注册 ！
+    本邮件为系统自动发送，请勿回复。

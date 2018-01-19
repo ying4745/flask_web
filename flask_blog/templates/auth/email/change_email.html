@@ -1,0 +1,8 @@
+<p>亲爱的{{ user.username }}</p>
+<p>如果你想要重置邮箱，请点击
+    <a href="{{ url_for('auth.change_email', token=token, _external=True) }}">
+    这里</a>.</p>
+<p>或者，你可以在浏览器的地址栏中粘贴以下链接:</p>
+<p>{{ url_for('auth.reset_password', token=token, _external=True) }}</p>
+<p>如果你没有请求邮箱重置，请忽略此消息</p>
+<p><small>本邮件为系统自动发送，请勿回复。</small></p>

@@ -24,21 +24,22 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="{{ url_for('main.index') }}">主页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
                 {% if current_user.can(Permission.MODERATE_COMMENTS) %}
                 <li><a href="{{ url_for('main.moderate') }}">审核评论</a></li>
                 {% endif %}
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{ url_for('static',filename=current_user.avatar()) }}"
-                        height="20" width="20">{{ current_user.username }}
+                        <img src="{{ current_user.gravatar(size=25) }}">
+                        {{ current_user.username }}
                         <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('auth.show_user',username=current_user.username) }}">
+                        <li><a href="{{ url_for('main.user',username=current_user.username) }}">
                             个人资料</a></li>
                         <li><a href="{{ url_for('auth.change_password') }}">修改密码</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a></li>
                         <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
                     </ul>
                 </li>
@@ -62,4 +63,10 @@
 
     {% block page_content %}{% endblock %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{{ moment.lang("zh-CN") }}
 {% endblock %}

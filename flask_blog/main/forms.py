@@ -7,6 +7,13 @@ from ..models import Role, User
 from flask_pagedown.fields import PageDownField
 
 
+class UserForm(FlaskForm):
+    name = StringField('姓名', validators=[Length(0, 64)])
+    location = StringField('地址', validators=[Length(0, 64)])
+    about_me = TextAreaField('自我简介')
+    submit = SubmitField('提交')
+
+
 class EditProfiledAdminForm(FlaskForm):
     email = StringField('邮箱', validators=[DataRequired(), Length(1, 64), Email()])
     username = StringField('用户名', validators=[DataRequired(), Length(1, 64),

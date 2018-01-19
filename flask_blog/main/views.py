@@ -1,10 +1,10 @@
 from flask import render_template, flash, url_for, redirect, request, abort, \
     make_response, current_app
 from . import main
-from .forms import EditProfiledAdminForm, ArticleForm, CommentForm
+from .forms import EditProfiledAdminForm, ArticleForm, CommentForm, UserForm
 from flask_login import login_required, current_user
 from ..decorators import admin_required
-from ..models import User, Role, Permission, Article, Comment
+from ..models import User, Role, Permission, Article, Comment, Follow
 from flask_blog import db
 from ..decorators import permission_required
 
@@ -35,6 +35,23 @@ def index():  # 主页
                            pagination=pagination, show_followed=show_followed)
 
 
+@main.route('/user/modify/<username>', methods=['GET', 'POST'])
+@login_required
+def edit_profile(username):
+    form = UserForm()
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.location = form.location.data
+        current_user.about_me = form.about_me.data
+        db.session.add(current_user)
+        flash('你的资料已更新')
+        return redirect(url_for('.user', username=current_user.username))
+    form.name.data = current_user.name
+    form.location.data = current_user.location
+    form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', form=form)
+
+
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -50,14 +67,27 @@ def edit_profile_admin(id):  # 管理员修改个人资料
         user.about_me = form.about_me.data
         db.session.add(user)
         flash('个人资料已经更新')
-        return redirect(url_for('auth.show_user', username=user.username))
+        return redirect(url_for('.user', username=user.username))
     form.email.data = user.email
     form.username.data = user.username
     form.role.data = user.role_id
     form.name.data = user.name
     form.location.data = user.location
     form.about_me.data = user.about_me
-    return render_template('main/edit_profile.html', form=form)
+    return render_template('edit_profile.html', form=form)
+
+
+@main.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    pagination = user.articles.order_by(Article.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
+        error_out=False)
+    articles = pagination.items
+    return render_template('user.html', user=user, articles=articles,
+                           pagination=pagination)
 
 
 @main.route('/article/<int:id>', methods=['GET', 'POST'])
@@ -103,6 +133,72 @@ def edit(id):  # 文章修改
     return render_template('edit_article.html', form=form)
 
 
+@main.route('/follow/<username>')  # 关注
+@login_required
+@permission_required(Permission.FOLLOW)
+def follow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效的用户')
+        return redirect(url_for('.user', username=username))
+    if current_user.is_following(user):
+        flash('你已经关注了这个人')
+        return redirect(url_for('.user', username=username))
+    current_user.follow(user)
+    flash('你关注了%s' % username)
+    return redirect(url_for('.user', username=username))
+
+
+@main.route('/unfollow/<username>')  # 取消关注
+@login_required
+@permission_required(Permission.FOLLOW)
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效的用户')
+        return redirect(url_for('.user', username=username))
+    if not current_user.is_following(user):
+        flash('你没有关注这个人')
+        return redirect(url_for('.user', username=username))
+    current_user.unfollow(user)
+    flash('你取消了对%s的关注' % username)
+    return redirect(url_for('.user', username=username))
+
+
+@main.route('/followers/<username>')  # 被关注列表
+def followers(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效的用户')
+        return redirect(url_for('.user', username=username))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followers.order_by(Follow.timestamp.desc()).paginate(page,
+                                         per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+                                         error_out=False)
+    follows = [{'user': item.follower, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title='的粉丝',
+                           endpoint='.followers', pagination=pagination,
+                           follows=follows)
+
+
+@main.route('/followed-by/<username>')  # 关注列表
+def followed_by(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效的用户')
+        return redirect(url_for('.user', username=username))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followed.order_by(Follow.timestamp.desc()).paginate(page,
+                                        per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+                                        error_out=False)
+    follows = [{'user': item.followed, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title='的关注',
+                           endpoint='.followed_by', pagination=pagination,
+                           follows=follows)
+
+
 @main.route('/all')  # 显示所有文章
 @login_required
 def show_all():
@@ -119,7 +215,7 @@ def show_followed():
     return resp
 
 
-@main.route('/moderate')
+@main.route('/moderate')  # 加载管理评论页面
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderate():
@@ -130,3 +226,23 @@ def moderate():
     comments = pagination.items
     return render_template('moderate.html', comments=comments,
                            pagination=pagination, page=page)
+
+
+@main.route('/moderate/enable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate_enable(id):
+    comment = Comment.query.get_or_404(id)
+    comment.disabled = False
+    db.session.add(comment)
+    return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/moderate/disable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate_disable(id):
+    comment = Comment.query.get_or_404(id)
+    comment.disabled = True
+    db.session.add(comment)
+    return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))

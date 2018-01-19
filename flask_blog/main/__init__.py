@@ -8,6 +8,6 @@ from . import views, errors
 from ..models import Permission
 
 
-@main.app_context_processor
+@main.app_context_processor  # 将Permission类加入模版上下文
 def inject_permissions():
     return dict(Permission=Permission)

@@ -5,29 +5,39 @@
 
 {% block page_content %}
 <div class="page-header">
-    <img class="img-rounded profile-thumbnail" src="{{ url_for('static', filename=user.avatar() ) }}">
+    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
 <div class="profile-header">
-    <h2>个人资料</h2>
-    <ul>
-        <li><strong>名字：</strong>{{ user.name }}</li>
-        <li><strong>邮箱：</strong>{{ user.email }}</li>
-        <li><strong>地址：</strong>{{ user.location }}</li>
-        <li><strong>个人风采：</strong>{{ user.about_me }}</li>
-    </ul>
-    <p>共{{ user.articles.count() }}篇文章</p>
+    <h1>{{ user.username }}</h1>
+    {% if user.name or user.location %}
+    <p>
+        {% if user.name %}{{ user.name }}<br>{% endif %}
+        {% if user.location %}
+        来自 <a href="https://maps.baidu.com/?q={{ user.location }}">
+        {{ user.location }}</a><br>
+        {% endif %}
+    </p>
+    {% endif %}
+    {% if current_user.is_administrator() %}
+    <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+    {% endif %}
+    {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+    <p>注册时间为{{ moment(user.member_since).format('LL') }}.
+    最后一次登录时间为{{ moment(user.last_seen).fromNow() }}.</p>
+    <p>共发表了{{ user.articles.count() }}篇文章，{{ user.comments.count() }}
+    条评论。</p>
     <p>
     {% if current_user.can(Permission.FOLLOW) and user != current_user %}
         {% if not current_user.is_following(user) %}
-        <a href="{{ url_for('auth.follow', username=user.username) }}"
+        <a href="{{ url_for('main.follow', username=user.username) }}"
            class="btn btn-primary">关注</a>
         {% else %}
-        <a href="{{ url_for('auth.unfollow', username=user.username) }}"
+        <a href="{{ url_for('main.unfollow', username=user.username) }}"
            class="btn btn-default">取消关注</a>
         {% endif %}
     {% endif %}
-    <a href="{{ url_for('auth.followed_by', username=user.username) }}">
+    <a href="{{ url_for('main.followed_by', username=user.username) }}">
         关注: <span class="badge">{{ user.followed.count() - 1 }}</span></a>
-    <a href="{{ url_for('auth.followers', username=user.username) }}">
+    <a href="{{ url_for('main.followers', username=user.username) }}">
         粉丝: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
     {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
     | <span class="label label-default">他关注了你</span>
@@ -35,7 +45,7 @@
     </p>
     <p>
         {% if user == current_user %}
-        <a class="btn btn-default" href="{{ url_for('auth.user',username=user.username) }}">修改</a>
+        <a class="btn btn-default" href="{{ url_for('main.edit_profile',username=user.username) }}">修改</a>
         {% endif %}
         {% if current_user.is_administrator() %}
         <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin',id=user.id) }}">修改 [管理员]</a>
@@ -47,7 +57,7 @@
 {% include '_articles.html' %}
 {% if pagination %}
 <div class="pagination">
-    {{ macros.pagination_widget(pagination, 'auth.show_user',
+    {{ macros.pagination_widget(pagination, 'main.user',
         username=user.username) }}
 </div>
 {% endif %}
