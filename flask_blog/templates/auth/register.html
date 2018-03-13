@@ -1,13 +1,41 @@
-{% extends 'base.html' %}
-{% import 'bootstrap/wtf.html' as wtf %}
+{% extends 'denglu_base.html' %}
 
 {% block title %}注册{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>注册</h1>
-</div>
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
+{% block content %}
+
+<div class="panel reg ">
+    <div class="panel-body">
+        <div class="form-title">
+            <h3 class="form-top-l f_l" >注册</h3>
+            <a class="form-top-r f_r" href="{{ url_for('auth.login') }}">已有账户，马上登录</a>
+        </div>
+        <form  role="form" method="post">
+           {{ form.hidden_tag() }}
+           <div class="form-item">
+               <label class="label-con"><span class="required">*</span>
+                   {{ form.email.label }}</label>
+               {{ render_message(form.email,class='form-con',placeholder='电子邮箱') }}
+           </div>
+           <div class="form-item">
+               <label class="label-con"><span class="required">*</span>
+                   {{ form.username.label }}</label>
+                   {{ render_message(form.username,class='form-con',placeholder='用户名') }}
+           </div>
+           <div class="form-item">
+               <label class="label-con"><span class="required">*</span>
+                   {{ form.password.label }}</label>
+                   {{ render_message(form.password,class='form-con',placeholder='密码') }}
+           </div>
+           <div class="form-item">
+               <label class="label-con"><span class="required">*</span>
+                   {{ form.password2.label }}</label>
+                   {{ render_message(form.password2,class='form-con',placeholder='确认密码') }}
+           </div>
+           <div class="form-item">
+               {{ form.submit(class='btn-sub gray btn-reg') }}
+           </div>
+       </form>
+    </div>
 </div>
 {% endblock %}

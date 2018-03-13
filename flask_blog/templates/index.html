@@ -1,35 +1,77 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>Hello, {% if current_user.is_authenticated %}
-        {{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
-</div>
-<div>
-    {% if current_user.can(Permission.WRITE_ARTICLES) %}
-    {{ wtf.quick_form(form) }}
-    {% endif %}
-</div>
-<div class="article-tabs">
-    <ul class="nav nav-tabs">
-        <li {% if not show_followed %} class='active'{% endif %}>
-            <a href="{{ url_for('.show_all') }}">全部文章</a>
-        </li>
-        <li {% if show_followed %} class="active" {% endif %}>
-            <a href="{{ url_for('.show_followed') }}">我的关注</a>
-        </li>
-    </ul>
-    {% include '_articles.html' %}
-</div>
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, 'main.index') }}
-</div>
-{% endif %}
+{% block content %}
+
+    <div class="container">
+        <div class="bloglist f_l">
+            {% block page_content %}
+            <div class="nav-tabs">
+                <ul>
+                    <li {% if not show_followed %} class='active'{% endif %}>
+                        <a href="{{ url_for('.show_all') }}">全部文章</a>
+                    </li>
+                    <li {% if show_followed %} class="active" {% endif %}>
+                        <a href="{{ url_for('.show_followed') }}">我的关注</a>
+                    </li>
+                </ul>
+            </div>
+
+                {% include '_articles_summary.html' %}
+
+
+            {% endblock %}
+        </div>
+
+        <div class="r_box f_r">
+            {% block subfield %}
+            <div class="tit01">
+                <h3 class="tit">标签</h3>
+                <div class="gzwm">
+                    <ul>
+                        <li><a class="email" href="#mailto:admin@admin.com" target="_blank">
+                            我的邮箱</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tuwen">
+                <h3 class="tit">最新文章</h3>
+                    <ul>
+                      <li><a href="/"><img src="images/01.jpg"><b>住在手机里的朋友</b></a>
+                        <p><span class="tulanmu"><a href="/">手机配件</a></span><span class="tutime">2015-02-15</span></p>
+                      </li>
+                      <li><a href="/"><img src="images/06.jpg"><b>住在手机里的朋友</b></a>
+                        <p><span class="tulanmu"><a href="/">手机配件</a></span><span class="tutime">2015-02-15</span></p>
+                      </li>
+                      <li><a href="/"><img src="images/04.jpg"><b>教你怎样用欠费手机拨打电话</b></a>
+                        <p><span class="tulanmu"><a href="/">手机配件</a></span><span class="tutime">2015-02-15</span></p>
+                      </li>
+                    </ul>
+            </div>
+            <div class="ph">
+                <h3 class="tit">点击排行</h3>
+                    <ul class="rank">
+                      <li><a href="/jstt/bj/2017-07-13/784.html" title="【心路历程】请不要在设计这条路上徘徊啦" target="_blank">【心路历程】请不要在设计这条路上徘徊啦</a></li>
+                      <li><a href="/news/s/2016-05-20/751.html" title="IP要突破2000+了" target="_blank">IP要突破2000+了</a></li>
+                      <li><a href="/jstt/web/2015-07-03/749.html" title="帝国cms首页、自定义页面如何实现分页" target="_blank">帝国cms首页、自定义页面如何实现分页</a></li>
+                      <li><a href="/jstt/web/2015-02-25/745.html" title="【已评选】给我模板PSD源文件，我给你设计HTML！" target="_blank">【已评选】给我模板PSD源文件，我给你设计HTML！</a></li>
+                    </ul>
+            </div>
+            <div class="gyw">
+                <h3 class="tit">关于我</h3>
+            </div>
+            {% endblock %}
+            <div class="ad"> <img src="images/03.jpg"> </div>
+        </div>
+                    {% if pagination %}
+                {{ macros.pagination_widget(pagination, 'main.index') }}
+            {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}

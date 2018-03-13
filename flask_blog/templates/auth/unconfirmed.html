@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends 'denglu_base.html' %}
 
 {% block title %}确认你的账户{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
+{% block content %}
+<div class="panel">
     <h1>
         你好 {{ current_user.username }}!
     </h1>

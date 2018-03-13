@@ -8,9 +8,9 @@ class Config:
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') # 配置管理员邮箱
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'  # 邮件主题前缀
     FLASKY_MAIL_SENDER = 'Flasky Admin <yanwei4682@163.com>'  # 发件人邮箱
-    FLASKY_ARTICLES_PER_PAGE = 18
-    FLASKY_FOLLOWERS_PER_PAGE = 48
-    FLASKY_COMMENTS_PER_PAGE = 30
+    FLASKY_ARTICLES_PER_PAGE = 10
+    FLASKY_FOLLOWERS_PER_PAGE = 40
+    FLASKY_COMMENTS_PER_PAGE = 20
     MAIL_SERVER = 'smtp.163.com'
     MAIL_PORT = 25
     MAIL_USE_TLS = True

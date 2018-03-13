@@ -173,28 +173,28 @@ class User(db.Model, UserMixin):
         db.session.add(self)
         return True
 
-    def generate_email_change_token(self, new_email, expiration=3600):  # 更换邮箱时生成令牌
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'change_email': self.id, 'new_email': new_email})
-
-    def change_email(self, token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)  # 检验令牌
-        except:
-            return False
-        if data.get('change_email') != self.id:   # 检查用户身份
-            return False
-        new_email = data.get('new_email')
-        if new_email is None:
-            return False
-        if self.query.filter_by(email=new_email).first() is not None:  # 邮箱与原来相同
-            return False
-        self.email = new_email
-        self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
-        # 通过hashlib的md5函数，将email生成摘要信息
-        db.session.add(self)
-        return True
+    # def generate_email_change_token(self, new_email, expiration=3600):  # 更换邮箱时生成令牌
+    #     s = Serializer(current_app.config['SECRET_KEY'], expiration)
+    #     return s.dumps({'change_email': self.id, 'new_email': new_email})
+    #
+    # def change_email(self, token):
+    #     s = Serializer(current_app.config['SECRET_KEY'])
+    #     try:
+    #         data = s.loads(token)  # 检验令牌
+    #     except:
+    #         return False
+    #     if data.get('change_email') != self.id:   # 检查用户身份
+    #         return False
+    #     new_email = data.get('new_email')
+    #     if new_email is None:
+    #         return False
+    #     if self.query.filter_by(email=new_email).first() is not None:  # 邮箱与原来相同
+    #         return False
+    #     self.email = new_email
+    #     self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+    #     # 通过hashlib的md5函数，将email生成摘要信息
+    #     db.session.add(self)
+    #     return True
 
     def can(self, permissions):  # 检查角色是否具有请求所需的权限
         return self.role is not None and (self.role.permissions &
@@ -261,6 +261,7 @@ class Article(db.Model):
     title = db.Column(db.String(128), unique=True)
     content = db.Column(db.Text)
     content_html = db.Column(db.Text)
+    summary = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     comments = db.relationship('Comment', backref='article', lazy='dynamic')
@@ -288,6 +289,11 @@ class Article(db.Model):
                         'h1', 'h2', 'h3', 'p']
         target.content_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
+        lines = value.split('\n')
+        temp = '\n'.join(lines[:5])
+        target.summary = bleach.linkify(bleach.clean(
+            markdown(temp, output_format='html'),
             tags=allowed_tags, strip=True))
 
     def __repr__(self):

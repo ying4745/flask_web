@@ -1,0 +1,136 @@
+@charset "utf-8";
+#wrapper {
+    background: url(../images/denglubg.jpg) no-repeat;
+    background-size: 100% 92%;
+}
+.login-img {
+    width: 160px;
+    margin: auto;
+    margin-top: 20px;
+}
+.panel {
+    width: 350px;
+    margin: auto;
+    margin-top: 40px;
+    text-align:center;
+    background: #ececec;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+}
+.reg {
+    width: 400px;
+    margin-top: 20px;
+}
+.required {
+    color: red;
+}
+.panel-body {
+    padding: 30px 40px;
+}
+.form-title {
+    width: 100%;
+    border-bottom: 1px solid #DDD;
+    padding-bottom: 10px;
+    overflow: hidden;
+}
+.form-top-l {
+    font-size: 260%;
+    margin-left: 20px;
+}
+.form-top-r {
+    margin-top: 25px;
+}
+.form-item {
+    margin-top: 20px;
+}
+.form-item .label-con {
+    float: left;
+    width: 80px;
+    line-height: 40px;
+    font-size: 15px;
+    color: #666;
+    text-align: right;
+    margin-right: 15px;
+}
+.form-item p.form-error {
+    color: red;
+    padding-top: 3px;
+    text-align:center;
+    font-size: 13px;
+}
+.form-con {
+    display: inline-block;
+    width: 200px;
+    line-height: 18px;
+    border: 1px solid #CCC;
+    padding: 10px 8px 10px 10px;
+    font-size: 15px;
+    color: #666;
+    vertical-align: middle;
+    border-radius: 4px;
+}
+.form-con:focus {
+	border: 1px solid #AAA;
+    box-shadow: 2px 0px 5px 0px #fff;
+}
+.pass-label {
+    display: block;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    overflow: hidden;
+    z-index: 20;
+    background-image: url("../images/pass.png");
+    background-repeat: no-repeat;
+}
+.pass-user {
+    background-position: 0px 4px;
+    margin: 4px 0 0 18px;
+}
+.pass-mm {
+    background-position: 0px -25px;
+    margin: 8px 0 0 18px;
+}
+.form-item .input-user,.form-item .input-pwd {
+    padding: 10px 8px 10px 40px;
+}
+.rem-box {
+    height: 18px;
+}
+.rem {
+    margin-left: 10px;
+}
+.rem .rem-text {
+    vertical-align: 2px;
+}
+.find-pwd {
+    margin-right: 10px;
+}
+.btn-sub {
+    clear: both;
+    width: 250px;
+    font-size: 16px;
+}
+.btn-reg {
+    width: 320px;
+}
+.gray {
+	display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    background: #969696;
+    border: 1px solid #969696;
+    color: #FFF;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.gray:hover {
+	background: #606060;
+	color: #FFF;
+}
+.form-item p {
+    font-size: 14px;
+    text-align: left;
+    margin-left: 10px;
+}

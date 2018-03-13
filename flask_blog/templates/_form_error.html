@@ -1,0 +1,8 @@
+{% macro render_message(field) %}
+    {{ field(**kwargs) | safe }}
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <p class="form-error">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
+{% endmacro %}

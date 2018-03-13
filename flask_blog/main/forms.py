@@ -50,4 +50,4 @@ class ArticleForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     content = PageDownField('', validators=[DataRequired()])
-    submit = SubmitField('发布')
+    submit = SubmitField('发布评论')

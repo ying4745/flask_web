@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="keywords" content="个人博客 python web 爬虫">
+    <meta name="description" content="个人建站测试">
+    <title>{% block title %}左岸个人博客-人生苦短我用python{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='tools.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='tools.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <!--[if lt IE 9]>
+    <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
+    <![endif]-->
+    <script type=text/javascript src="{{ url_for('static', filename='js/base.js') }}"></script>
+    {% endblock %}
+</head>
+<body>
+
+    <div id="wrapper">
+        <div class="headtop"></div>
+
+        {% for message in get_flashed_messages() %}
+        <div class="alert-warning"><p>{{ message }}</p></div>
+        {% endfor %}
+
+        <div class="login-img">
+            <a href="{{ url_for('main.index') }}">
+            <img src="{{ url_for('static', filename='images/login.jpg') }}" alt="主页"></a>
+        </div>
+
+    {% from '_form_error.html' import render_message %}
+    {% block content %}{% endblock %}
+
+        <div class="footerpush"></div>
+    </div>
+
+<footer>
+    <div class="footer">
+    <p>&copy; 2018, Make A Dream Come True</p>
+    <p>Powered by <a href="https://www.python.org/">Python</a>,
+    <a href="http://docs.jinkan.org/docs/flask/">Flask</a>,
+    <a href="http://www.yangqq.com">杨青个人博客</a>.
+    </p>
+    <p>Server framework by gunicorn, nginx, supervisor.</p>
+    </div>
+</footer>
+
+</body>
+</html>

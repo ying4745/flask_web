@@ -1,16 +1,40 @@
-{% extends 'base.html' %}
-{% import 'bootstrap/wtf.html' as wtf %}
+{% extends 'denglu_base.html' %}
 
 {% block title %}登录{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>登录</h1>
-</div>
-<div class="col-md-4">
-    <p>新用户？<a href="{{ url_for('auth.register') }}">注册新账户</a></p>
-    {{ wtf.quick_form(form) }}
-    <br>
-    <a href="{{ url_for('auth.enter_account') }}">忘记密码？</a>
+{% block content %}
+
+<div class="panel">
+    <div class="panel-body">
+        <div class="form-title">
+            <h3 class="form-top-l f_l">登录</h3>
+            <p class="form-top-r f_r">还没有帐号？
+                <a href="{{ url_for('auth.register') }}">立即注册</a>
+            </p>
+        </div>
+        <form  role="form" method="post">
+           {{ form.hidden_tag() }}
+           <div class="form-item">
+               <label class="pass-label pass-user"></label>
+               {{ render_message(form.email,class='form-con input-user',placeholder='电子邮箱') }}
+           </div>
+           <div class="form-item">
+               <label class="pass-label pass-mm"></label>
+               {{ render_message(form.password,class='form-con input-pwd',placeholder='登录密码') }}
+           </div>
+           <div class="form-item">
+               <div class="rem-box">
+                   <span class="rem f_l">
+                       {{ form.remember_me }}
+                       <span class="rem-text">{{ form.remember_me.label }}</span>
+                    </span>
+                   <a class="find-pwd f_r" href="{{ url_for('auth.enter_account') }}">忘记密码？</a>
+               </div>
+           </div>
+           <div class="form-item">
+               {{ form.submit(class='btn-sub gray') }}
+           </div>
+       </form>
+    </div>
 </div>
 {% endblock %}

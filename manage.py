@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 COV = None
 if os.environ.get('FLASK_COVERAGE'):  # 存在环境变量'FLASK_COVERAGE'则执行

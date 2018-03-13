@@ -39,7 +39,7 @@ def login():
             return redirect(request.args.get('next') or url_for('main.index'))
             # Flask - Login会把原地址保存在查询字符串的next参数中，这个参数可从request.args字典中读取。
             # 如果查询字符串中没有next参数，则重定向到首页
-        flash('无效的用户名和密码')
+        flash('无效的用户名和密码!')
     return render_template('auth/login.html', form=form)
 
 
@@ -47,7 +47,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('你已经退出')
+    flash('你已经退出!')
     return redirect(url_for('main.index'))
 
 
@@ -63,7 +63,8 @@ def register():  # 注册
         token = user.generate_confirmation_token()
         send_email(user.email,'确认你的账户','auth/email/confirm', user=user,token=token)
         flash('你已注册成功,一封确认邮件已通过电子邮件发送给你.')
-        return redirect(url_for('auth.login'))
+        login_user(user)
+        return redirect(url_for('main.index'))
     return render_template('auth/register.html', form=form)
 
 
@@ -112,7 +113,7 @@ def enter_account():  # 重置密码 - 1 确认重置密码的账户 发送邮�
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             token = user.generate_reset_token()
-            send_email(user.email, '重设密码', 'auth/email/reset_password',
+            send_email(user.email, '重置密码', 'auth/email/reset_password',
                        user=user, token=token)
             # 源代码中有 next=request.args.get('next') 感觉没用上
             flash('一封新的确认邮件已经通过电子邮件发送给你')
@@ -138,28 +139,28 @@ def reset_password(token):  # 重置密码 - 2 改密码
     return render_template('auth/reset_password.html', form=form)
 
 
-@auth.route('/change-email', methods=['GET', 'POST'])
-@login_required
-def change_email_request():
-    form = ChangeEmailForm()
-    if  form.validate_on_submit():
-        if current_user.verify_password(form.password.data):
-            new_email = form.email.data
-            token = current_user.generate_email_change_token(new_email)
-            send_email(new_email, '确认你的邮箱地址', 'auth/email/change_email',
-                       user=current_user, token=token)
-            flash('一封确认邮箱地址的邮件已发送至你的邮箱')
-            return redirect(url_for('main.index'))
-        else:
-            flash('密码错误')
-    return render_template('auth/change_email.html', form=form)
-
-
-@auth.route('/change-email/<token>')
-@login_required
-def change_email(token):
-    if current_user.change_email(token):
-        flash('你的邮箱已经更新')
-    else:
-        flash('请求失败')
-    return redirect(url_for('main.index'))
+# @auth.route('/change-email', methods=['GET', 'POST'])
+# @login_required
+# def change_email_request():
+#     form = ChangeEmailForm()
+#     if  form.validate_on_submit():
+#         if current_user.verify_password(form.password.data):
+#             new_email = form.email.data
+#             token = current_user.generate_email_change_token(new_email)
+#             send_email(new_email, '确认你的邮箱地址', 'auth/email/change_email',
+#                        user=current_user, token=token)
+#             flash('一封确认邮箱地址的邮件已发送至你的邮箱')
+#             return redirect(url_for('main.index'))
+#         else:
+#             flash('密码错误')
+#     return render_template('auth/change_email.html', form=form)
+#
+#
+# @auth.route('/change-email/<token>')
+# @login_required
+# def change_email(token):
+#     if current_user.change_email(token):
+#         flash('你的邮箱已经更新')
+#     else:
+#         flash('请求失败')
+#     return redirect(url_for('main.index'))

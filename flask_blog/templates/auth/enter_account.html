@@ -1,13 +1,24 @@
-{% extends 'base.html' %}
-{% import 'bootstrap/wtf.html' as wtf %}
+{% extends 'denglu_base.html' %}
 
-{% block title %}重设密码{% endblock %}
+{% block title %}重置密码{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h2>重设密码 - 确认账户</h2>
-</div>
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
+{% block content %}
+
+<div class="panel reg">
+    <div class="panel-body">
+        <div class="form-title">
+            <h3 class="form-top-l f_l">确认账号</h3>
+        </div>
+        <form role="form" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-item">
+                <label class="label-con">{{ form.email.label }}</label>
+                {{ render_message(form.email,class='form-con',placeholder='邮箱账号') }}
+            </div>
+            <div class="form-item">
+               {{ form.submit(class='btn-sub gray btn-reg') }}
+           </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
 {% import "_macros.html" as macros %}
 
 {% block title %}{{ user.username }}的个人资料{% endblock %}
@@ -54,7 +54,7 @@
 </div>
 </div>
 <h3>{{ user.username }}的文章</h3>
-{% include '_articles.html' %}
+{% include '_articles_summary.html' %}
 {% if pagination %}
 <div class="pagination">
     {{ macros.pagination_widget(pagination, 'main.user',
