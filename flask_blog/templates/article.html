@@ -15,7 +15,7 @@
     <h3 class="article_title"><a href="{{ url_for('main.article', id=article.id) }}">
     {{ article.title }}</a></h3>
     <ul class="article_date">
-        <li>发布于{{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}</li>
+        <li>{{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}</li>
         <li>标签：</li>
         <li class="f_r"><a href="{{ url_for('main.article', id=article.id) }}#comments">
                 ({{ article.comments.count() }})评论</a></li>
@@ -35,7 +35,7 @@
             </a>
             {% elif current_user.is_administrator() %}
             <a href="{{ url_for('main.edit', id=article.id) }}">
-                 <span class="com_btn btn_red">编辑[管理员]</span>
+                 <span class="btn_red">编辑[管理员]</span>
             </a>
             {% endif %}
         </div>
@@ -55,6 +55,9 @@
 
 {% include '_comments.html' %}
 
+{% endblock %}
+
+{% block pagination %}
 {% if pagination %}
 {{ macros.pagination_widget(pagination, '.article',
 fragment='#comments', id=articles[0].id) }}

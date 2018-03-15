@@ -24,7 +24,6 @@
 
                 {% include '_articles_summary.html' %}
 
-
             {% endblock %}
         </div>
 
@@ -68,9 +67,11 @@
             {% endblock %}
             <div class="ad"> <img src="images/03.jpg"> </div>
         </div>
-                    {% if pagination %}
-                {{ macros.pagination_widget(pagination, 'main.index') }}
-            {% endif %}
+        {% block pagination %}
+        {% if pagination %}
+            {{ macros.pagination_widget(pagination, 'main.index') }}
+        {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}
 

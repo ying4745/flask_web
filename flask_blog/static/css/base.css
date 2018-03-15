@@ -264,8 +264,7 @@ footer {
 /*分页导航*/
 .pagination {
     clear: both;
-    padding-left: 15px;
-    padding-top: 15px;
+    padding: 5px 0 10px 20px;
     height: 30px;
 }
 .pagination li {

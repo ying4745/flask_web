@@ -32,7 +32,7 @@
                     id=comment.id, page=page) }}"><span class="com_btn btn_blue">解禁</span></a>
                 {% else %}
                 <a href="{{ url_for('.moderate_disable',
-                    id=comment.id, page=page) }}"><span class="com_btn btn_red">屏蔽</span></a>
+                    id=comment.id, page=page) }}"><span class="btn_red">屏蔽</span></a>
                 {% endif %}
             </div>
             {% endif %}
