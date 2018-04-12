@@ -4,12 +4,12 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'this is a secret string'
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # 设置True 取消警告
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True  # 每次请求结束后都会自动提交数据库中的变动
-    BOOTSTRAP_SERVE_LOCAL = True # 使用本地 bootstrap 资源
-    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') # 配置管理员邮箱
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'  # 邮件主题前缀
-    FLASKY_MAIL_SENDER = 'Flasky Admin <yanwei4682@163.com>'  # 发件人邮箱
+    # BOOTSTRAP_SERVE_LOCAL = True # 使用本地 bootstrap 资源
+    FLASKY_ADMIN = os.environ.get('BLOG_ADMIN') # 配置管理员邮箱
+    FLASKY_MAIL_SUBJECT_PREFIX = '[左岸博客]'  # 邮件主题前缀
+    FLASKY_MAIL_SENDER = '左岸博客 <yanwei4682@163.com>'  # 发件人邮箱
     FLASKY_ARTICLES_PER_PAGE = 10
-    FLASKY_FOLLOWERS_PER_PAGE = 40
+    FLASKY_FOLLOWERS_PER_PAGE = 20
     FLASKY_COMMENTS_PER_PAGE = 20
     MAIL_SERVER = 'smtp.163.com'
     MAIL_PORT = 25

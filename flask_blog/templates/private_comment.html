@@ -1,0 +1,52 @@
+{% block scripts %}
+{{ moment.include_jquery() }}
+{{ moment.include_moment() }}
+{{ moment.lang("zh-CN") }}
+{% endblock %}
+<div class="s_box">
+<ul class="comments">
+    {% for comment in comments %}
+    <li class="comment">
+        <ul class="comment_title">
+            <li>
+                <a href="{{ url_for('main.user',username=comment.author.username) }}">
+                    <img class="portrait" src="{{ comment.author.gravatar(size=36) }}"></a>
+            </li>
+            <li>
+                <a href="{{ url_for('main.user',username=comment.author.username) }}">
+                    {{ comment.author.username }}</a>
+            </li>
+            <li>
+                {{ moment(comment.timestamp).format('YYYY年M月D日 h:mm:ss') }}
+            </li>
+            <li>
+                &lt;&lt; <a href="{{ url_for('main.article', id=comment.article.id) }}">
+                {{ comment.article.title }}</a>
+            </li>
+        </ul>
+        <div class="comment_content">
+            {% if comment.disabled %}
+            <p><i>此评论已被屏蔽</i></p>
+            {% endif %}
+            {% if current_user.can(Permission.MODERATE_COMMENTS) or not comment.disabled %}
+                {% if comment.content_html %}
+                    {{ comment.content_html | safe }}
+                {% else %}
+                    {{ comment.content }}
+                {% endif %}
+            {% endif %}
+            {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+            <div class="moderate">
+                <button id ='{{ comment.id }}'{% if comment.disabled %} class="btn_follow_blue"
+                        {% else %} class="btn_follow_blue btn_follow_red"{% endif %}
+                    onclick=com_disa({{ comment.id }})>
+                {% if comment.disabled %}解禁{% else %}屏蔽{% endif %}</button>
+            </div>
+            {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+{% include '_ajax_pagination.html' %}
+</div>

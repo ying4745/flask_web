@@ -15,14 +15,15 @@ class UserForm(FlaskForm):
 
 
 class EditProfiledAdminForm(FlaskForm):
-    email = StringField('邮箱', validators=[DataRequired(), Length(1, 64), Email()])
-    username = StringField('用户名', validators=[DataRequired(), Length(1, 64),
+    email = StringField('邮箱', validators=[DataRequired(message='邮箱不能为空'), Length(1, 64),
+                                          Email(message='请输入有效的邮箱地址')])
+    username = StringField('用户名', validators=[DataRequired(message='用户名不能为空'), Length(1, 64),
                                               Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                                      '用户名只能由字母，数字，点，和下划线组成')])
     role = SelectField('角色', coerce=int)
-    name = StringField('名字', validators=[Length(0, 64)])
+    name = StringField('昵称', validators=[Length(0, 64)])
     location = StringField('地址', validators=[Length(0, 64)])
-    about_me = TextAreaField('个人风采')
+    about_me = TextAreaField('个人简介')
     submit = SubmitField('提交')
 
     def __init__(self, user, *args, **kwargs):
@@ -43,11 +44,11 @@ class EditProfiledAdminForm(FlaskForm):
 
 
 class ArticleForm(FlaskForm):
-    title = StringField('标题', validators=[DataRequired(), Length(1, 128)])
-    content = PageDownField('正文', validators=[DataRequired()])
+    title = StringField('标题', validators=[DataRequired(message='标题不能为空'), Length(1, 128)])
+    content = PageDownField('正文', validators=[DataRequired(message='正文不能为空')])
     submit = SubmitField('发布')
 
 
 class CommentForm(FlaskForm):
-    content = PageDownField('', validators=[DataRequired()])
+    content = PageDownField('', validators=[DataRequired(message='评论不能为空')])
     submit = SubmitField('发布评论')

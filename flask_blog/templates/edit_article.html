@@ -1,14 +1,36 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Edit Article{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>编辑文章</h1>
-</div>
-<div>
-    {{ wtf.quick_form(form) }}
+{% block title %}编辑文章{% endblock %}
+
+{% block content %}
+<div class="edit_post s_box clearfix">
+    {% from '_form_error.html' import render_message %}
+
+    <h3 class="edit_po_ti">编辑文章</h3>
+
+    <form  role="form" method="post">
+        {{ form.hidden_tag() }}
+        {{ form.title.label(class='form_article_title') }}
+            {% if form.title.errors %}
+                {% for error in form.title.errors %}
+                    <div class="form_edit_error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        {{ form.title(class='title_table',placeholder='') }}
+        {{ form.content.label(class='form_article_title') }}
+            {% if form.content.errors %}
+                {% for error in form.content.errors %}
+                    <div class="form_edit_error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        {{ form.content(class='article_table',placeholder='') }}
+        {{ form.submit(class='com_btn') }}
+    </form>
 </div>
 {% endblock %}
 

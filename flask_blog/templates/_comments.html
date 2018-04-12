@@ -1,10 +1,10 @@
-<ul class="comments">
+<ul class="comments s_box">
     {% for comment in comments %}
     <li class="comment">
         <ul class="comment_title">
             <li>
                 <a href="{{ url_for('main.user',username=comment.author.username) }}">
-                    <img src="{{ comment.author.gravatar(size=32) }}"></a>
+                    <img class="portrait" src="{{ comment.author.gravatar(size=32) }}"></a>
             </li>
             <li>
                 <a href="{{ url_for('main.user',username=comment.author.username) }}">
@@ -13,30 +13,28 @@
             <li>
                 {{ moment(comment.timestamp).format('YYYY年M月D日a h:mm:ss') }}
             </li>
+            <div class="f_r">{{ loop.index }} 楼</div>
         </ul>
         <div class="comment_content">
             {% if comment.disabled %}
             <p><i>此评论已被屏蔽</i></p>
             {% endif %}
-            {% if moderate or not comment.disabled %}
+            {% if current_user.can(Permission.MODERATE_COMMENTS) or not comment.disabled %}
                 {% if comment.content_html %}
                     {{ comment.content_html | safe }}
                 {% else %}
                     {{ comment.content }}
                 {% endif %}
             {% endif %}
-            {% if current_user.can(Permission.MODERATE_COMMENTS) %}
-            <div class="article_footer moderate">
-                {% if comment.disabled %}
-                <a href="{{ url_for('.moderate_enable',
-                    id=comment.id, page=page) }}"><span class="com_btn btn_blue">解禁</span></a>
-                {% else %}
-                <a href="{{ url_for('.moderate_disable',
-                    id=comment.id, page=page) }}"><span class="btn_red">屏蔽</span></a>
-                {% endif %}
-            </div>
-            {% endif %}
         </div>
+        {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+        <div class="moderate">
+            <button id ='{{ comment.id }}'{% if comment.disabled %} class="btn_follow_blue"
+                    {% else %} class="btn_follow_blue btn_follow_red"{% endif %}
+                onclick=com_disa({{ comment.id }})>
+            {% if comment.disabled %}解禁{% else %}屏蔽{% endif %}</button>
+        </div>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>

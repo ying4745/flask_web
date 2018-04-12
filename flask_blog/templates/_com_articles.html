@@ -1,0 +1,11 @@
+{% for com in com_articles %}
+<ul class="rank">
+    <li>
+        <a href="{{ url_for('main.article', id=com.id) }}" target="_blank">
+            {{ com.title }}</a>
+    </li>
+    <li class="ph">
+        <i class="iconfont icon-redu"></i> ({{ com.num }})
+    </li>
+</ul>
+{% endfor %}

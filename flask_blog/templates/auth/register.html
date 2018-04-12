@@ -8,7 +8,7 @@
     <div class="panel-body">
         <div class="form-title">
             <h3 class="form-top-l f_l" >注册</h3>
-            <a class="form-top-r f_r" href="{{ url_for('auth.login') }}">已有账户，马上登录</a>
+            <p class="form-top-r f_r">已有账户，<a href="{{ url_for('auth.login') }}">马上登录</a></p>
         </div>
         <form  role="form" method="post">
            {{ form.hidden_tag() }}

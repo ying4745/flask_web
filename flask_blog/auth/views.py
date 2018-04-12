@@ -31,7 +31,10 @@ def unconfirmed():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        if User.query.filter_by(email=form.account.data).first():
+            user = User.query.filter_by(email=form.account.data).first()
+        elif User.query.filter_by(username=form.account.data).first():
+            user = User.query.filter_by(username=form.account.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             # 调用Flask_Login中的login_user()函数，在用户会话中标记为登录

@@ -263,6 +263,7 @@ class Article(db.Model):
     content_html = db.Column(db.Text)
     summary = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    views = db.Column(db.Integer, default=int(0))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     comments = db.relationship('Comment', backref='article', lazy='dynamic')
 
@@ -281,6 +282,9 @@ class Article(db.Model):
                         author=u)
             db.session.add(a)
             db.session.commit()
+
+    def increase_views(self):
+        self.views += 1
 
     @staticmethod  # 此装饰器表示此方法以类名调用
     def on_changed_content(target, value, oldvalue, initiator):

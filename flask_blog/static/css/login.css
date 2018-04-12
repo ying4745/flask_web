@@ -21,6 +21,11 @@
     width: 400px;
     margin-top: 20px;
 }
+/* 修改个人资料框 */
+.profile-edit {
+    margin: auto;
+    width: 400px;
+}
 .required {
     color: red;
 }

@@ -1,25 +1,21 @@
 {% extends "index.html" %}
 {% import "_macros.html" as macros %}
 
-{% block head %}
-{{ super() }}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-{% endblock %}
 {% block title %}{{ articles[0].title }}{% endblock %}
 
 {% block page_content %}
 {% for article in articles %}
-<div class="article">
+<div class="article s_box">
     <h2 class="nh1"><span>您现在的位置是：<a href="/" target="_blank">网站首页</a>
         >><a href="#" target="_blank">未分类</a>>> 正文</span></h2>
     <h3 class="article_title"><a href="{{ url_for('main.article', id=article.id) }}">
     {{ article.title }}</a></h3>
     <ul class="article_date">
-        <li>{{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}</li>
-        <li>标签：</li>
-        <li class="f_r"><a href="{{ url_for('main.article', id=article.id) }}#comments">
-                ({{ article.comments.count() }})评论</a></li>
-        <li class="f_r">阅读()</li>
+        <li><i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}</li>
+        <li><i class="iconfont icon-biaoqian"></i> <a href="#">心得笔记</a></li>
+        <li class="f_r"><i class="iconfont icon-pinglun1"></i> <a href="{{ url_for('main.article', id=article.id) }}#comments">
+                ({{ article.comments.count() }})</a></li>
+        <li class="f_r"><i class="iconfont icon-browse"></i> ({{ article.views }})</li>
     </ul>
     <div class="article_content">
         {% if article.content_html %}
@@ -28,10 +24,10 @@
             {{ article.content }}
         {% endif %}
     </div>
-    <div class="article_footer f_r">
+    <div class="f_r">
             {% if current_user == article.author %}
             <a href="{{ url_for('main.edit', id=article.id) }}">
-                <span class="com_btn btn_blue">编辑</span>
+                <span class="btn_blue">编辑</span>
             </a>
             {% elif current_user.is_administrator() %}
             <a href="{{ url_for('main.edit', id=article.id) }}">
@@ -41,20 +37,65 @@
         </div>
 </div>
 {% endfor %}
+
+<div class="s_box">
 <h3 id="comments">评论</h3>
 {% if current_user.can(Permission.COMMENT) %}
 <div class="comments_form">
-    <form  role="form" method="post">
+    <form  role="form" method="post" >
         {{ form.hidden_tag() }}
         {{ form.content.label }}
+        {% if form.content.errors %}
+            {% for error in form.content.errors %}
+                <p class="form_edit_error">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
         {{ form.content(class='comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
         {{ form.submit(class='com_btn') }}
     </form>
+<!--    target="nm_iframe"  提交表单时 不刷新页面  在iframe中提交  将iframe隐藏
+    <iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>-->
 </div>
 {% endif %}
+</div>
 
+{% if comments %}
 {% include '_comments.html' %}
+{% endif %}
 
+{% endblock %}
+{% block subfield %}
+    <div class="tit01 s_box">
+        <dl class="tit-author clearfix">
+            <dt>
+            <a href="{{ url_for('main.user', username=articles[0].author.username) }}" target="_blank">
+                <img class="portrait" src="{{ articles[0].author.gravatar(size=60) }}"></a>
+            </dt>
+            <dd>
+            <h3><a href="{{ url_for('main.user', username=articles[0].author.username) }}">
+                    {{ articles[0].author.username }}</a></h3>
+            </dd>
+        </dl>
+        <div class="tit-content clearfix">
+            <dl>
+                <dt>原创</dt>
+                <dd>{{ articles[0].author.articles.count() }}</dd>
+            </dl>
+            <dl>
+                <dt>粉丝</dt>
+                <dd>{{ articles[0].author.followers.count() - 1 }}</dd>
+            </dl>
+            <dl>
+                <dt>关注</dt>
+                <dd>{{ articles[0].author.followed.count() - 1 }}</dd>
+            </dl>
+            <dl>
+                <dt>评论</dt>
+                <dd>{{ articles[0].author.comments.count() }}</dd>
+            </dl>
+        </div>
+    </div>
+    {{ super() }}
 {% endblock %}
 
 {% block pagination %}

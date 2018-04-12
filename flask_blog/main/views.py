@@ -7,18 +7,11 @@ from ..decorators import admin_required
 from ..models import User, Role, Permission, Article, Comment, Follow
 from flask_blog import db
 from ..decorators import permission_required
+from sqlalchemy import func
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/')
 def index():  # 主页
-    form = ArticleForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        article = Article(title=form.title.data, content=form.content.data,
-                          author=current_user._get_current_object())
-        db.session.add(article)
-        flash('你的文章已经发布了')
-        return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     show_followed = False
     if current_user.is_authenticated:
@@ -31,9 +24,43 @@ def index():  # 主页
         page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
         error_out=False)
     articles = pagination.items
-    return render_template('index.html', form=form, articles=articles,
-                           pagination=pagination, show_followed=show_followed)
+    views_articles = Article.query.order_by(Article.views.desc()).limit(10).all()
+    com_articles = db.session.query(Article.id,Article.title,func.count(Comment.id).label('num')).join(Comment)\
+        .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    return render_template('index.html', articles=articles, views_articles=views_articles,
+                          com_articles=com_articles, pagination=pagination, show_followed=show_followed)
 
+
+@main.route('/all')  # 显示所有文章
+@login_required
+def show_all():
+    resp = make_response(redirect(url_for('.index')))
+    resp.set_cookie('show_followed', '', max_age=30 * 24 * 60 * 60)
+    return resp
+
+
+@main.route('/followed')  # 显示关注者的文章
+@login_required
+def show_followed():
+    resp = make_response(redirect(url_for('.index')))
+    resp.set_cookie('show_followed', '1', max_age=30 * 24 * 60 * 60)
+    return resp
+
+
+@main.route('/publish', methods=['GET', 'POST'])   # 发布文章
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def publish():
+    form = ArticleForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
+        article = Article(title=form.title.data, content=form.content.data,
+                          author=current_user._get_current_object())
+        db.session.add(article)
+        db.session.commit()
+        flash('你的文章已经发布了')
+        return redirect(url_for('.article', id=article.id))
+    return render_template('edit_article.html', form=form)
 
 @main.route('/user/modify/<username>', methods=['GET', 'POST'])
 @login_required
@@ -86,13 +113,18 @@ def user(username):
         page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
         error_out=False)
     articles = pagination.items
-    return render_template('user.html', user=user, articles=articles,
-                           pagination=pagination)
+    views_articles = user.articles.order_by(Article.views.desc()).limit(10).all()
+    acc = db.session.query(Article).join(User).filter(User.username==username).subquery()
+    com_articles = db.session.query(acc,func.count(Comment.id).label('num')).join(Comment)\
+        .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    return render_template('user.html', user=user, articles=articles, views_articles=views_articles,
+                           com_articles=com_articles, endpoint='main.user',pagination=pagination)
 
 
 @main.route('/article/<int:id>', methods=['GET', 'POST'])
 def article(id):  # 单独显示文章
     article = Article.query.get_or_404(id)
+    article.increase_views()
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(content=form.content.data,
@@ -111,8 +143,14 @@ def article(id):  # 单独显示文章
         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('article.html', articles=[article], form=form,
-                           comments=comments, pagination=pagination)
+    u_id = article.author_id
+    views_articles = db.session.query(Article).join(User).filter(User.id==u_id)\
+        .order_by(Article.views.desc()).limit(10).all()
+    acc = db.session.query(Article).join(User).filter(User.id == u_id).subquery()
+    com_articles = db.session.query(acc, func.count(Comment.id).label('num')).join(Comment) \
+        .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    return render_template('article.html', articles=[article], form=form, views_articles=views_articles,
+                           com_articles=com_articles, comments=comments, pagination=pagination)
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -146,7 +184,7 @@ def follow(username):
         return redirect(url_for('.user', username=username))
     current_user.follow(user)
     flash('你关注了%s' % username)
-    return redirect(url_for('.user', username=username))
+    return "取消关注"
 
 
 @main.route('/unfollow/<username>')  # 取消关注
@@ -162,7 +200,7 @@ def unfollow(username):
         return redirect(url_for('.user', username=username))
     current_user.unfollow(user)
     flash('你取消了对%s的关注' % username)
-    return redirect(url_for('.user', username=username))
+    return "关注"
 
 
 @main.route('/followers/<username>')  # 被关注列表
@@ -177,8 +215,8 @@ def followers(username):
                                          error_out=False)
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user, title='的粉丝',
-                           endpoint='.followers', pagination=pagination,
+    return render_template('followers.html', user=user,
+                           endpoint='main.followers', pagination=pagination,
                            follows=follows)
 
 
@@ -194,25 +232,24 @@ def followed_by(username):
                                         error_out=False)
     follows = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user, title='的关注',
-                           endpoint='.followed_by', pagination=pagination,
+    return render_template('followers.html', user=user,
+                           endpoint='main.followed_by', pagination=pagination,
                            follows=follows)
 
 
-@main.route('/all')  # 显示所有文章
-@login_required
-def show_all():
-    resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '', max_age=30 * 24 * 60 * 60)
-    return resp
-
-
-@main.route('/followed')  # 显示关注者的文章
-@login_required
-def show_followed():
-    resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '1', max_age=30 * 24 * 60 * 60)
-    return resp
+@main.route('/moderate/<username>')  # 加载评论列表
+def comment(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效的用户')
+        return redirect(url_for('.user', username=username))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.comments.order_by(Comment.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+        error_out=False)
+    comments = pagination.items
+    return render_template('private_comment.html', comments=comments, user=user,
+                           pagination=pagination, page=page, endpoint='main.comment')
 
 
 @main.route('/moderate')  # 加载管理评论页面
@@ -235,7 +272,7 @@ def moderate_enable(id):
     comment = Comment.query.get_or_404(id)
     comment.disabled = False
     db.session.add(comment)
-    return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
+    return "解禁"
 
 
 @main.route('/moderate/disable/<int:id>')
@@ -245,4 +282,4 @@ def moderate_disable(id):
     comment = Comment.query.get_or_404(id)
     comment.disabled = True
     db.session.add(comment)
-    return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
+    return "屏蔽"

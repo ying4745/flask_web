@@ -1,36 +1,33 @@
 {% for article in articles %}
+<div class="s_box">
     <h3><a href="{{ url_for('main.article', id=article.id) }}">
     {{ article.title }}</a></h3>
-    <ul>
+    <div class="dateview">
+        <ul>
+            <li>
+                <i class="iconfont icon-yonghu-tianchong"></i>
+                <a href="{{ url_for('main.user', username=article.author.username) }}">
+                    {{ article.author.username }}</a>
+            </li>
+            <li>
+                <i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm') }}
+            </li>
+            <li>
+                <i class="iconfont icon-browse"></i> {{ article.views }}
+            </li>
+            <li>
+                <a href="{{ url_for('main.article', id=article.id) }}#comments">
+                   <i class="iconfont icon-pinglun1"></i> {{ article.comments.count() }}</a>
+            </li>
+            <li><i class="iconfont icon-biaoqian"></i> <a href="#">心得笔记</a></li>
+        </ul>
+    </div>
+    <ul class="articles-summary-body">
         <p>{% if article.summary %}
             {{ article.summary | safe }}
             {% endif %}</p>
         <a title="{{ article.title }}" href="{{ url_for('main.article', id=article.id) }}"
            target="_blank" class="readmore">阅读全文&gt;&gt;</a>
-        <a href="{{ url_for('main.article', id=article.id) }}#comments" class="readmore">
-                    ( {{ article.comments.count() }} )评论
-            </a>
     </ul>
-    <div class="dateview">
-    <ul class="lll">
-        <li class="article-author">
-            <a href="{{ url_for('main.user', username=article.author.username) }}">
-                <img class="img-rounded"
-                    src="{{ article.author.gravatar(size=20) }}">
-            </a>
-        </li>
-        <li>
-            <a href="{{ url_for('main.user', username=article.author.username) }}">
-                {{ article.author.username }}
-            </a>
-        </li>
-        <li>
-            发布于 {{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}
-        </li>
-
-    </ul>
-    <ul class="rrr">
-        <li>标签：<a href="/jstt/bj/">心得笔记</a></li>
-    </ul>
-    </div>
+</div>
 {% endfor %}

@@ -1,4 +1,5 @@
 ﻿@charset "utf-8";
+/* 文章位置导航 */
 .nh1 {
 	line-height: 30px;
 	height: 26px;
@@ -23,21 +24,25 @@
 	padding: 15px;
 	padding-top: 5px;
 	overflow: hidden;
-	border-bottom: #b6b6b6 1px solid;
 }
 .article .article_title {
     text-align: center;
     font-size: 22px;
     font-weight:bold;
+    margin: 20px 0;
 }
 .article_date {
     height: 20px;
-    margin-top: 10px;
     border-bottom: #d8d8d8 1px solid;
+    font-size: 13px;
+    color: #2f2f2fb3;
 }
 .article_date li{
     float: left;
     margin-left: 15px;
+}
+.article_date li i{
+    font-size: 13px;
 }
 .article_date li.f_r {
     float: right;
@@ -49,17 +54,18 @@
 	padding: 20px
 }
 .article_content p, .comment_content p {
-	margin-bottom: 15px;
+	margin-bottom: 10px;
 	text-indent: 2em
 }
+/* 文章评论 */
 .comments_form {
     height: 140px;
-    border-bottom: #d8d8d8 1px solid;
 }
 .comment_table {
     width:100%;
     height: 80px;
-    background: #f3f3f3;
+    background: #fbfbfb;
+    border-style: solid;
 }
 .com_btn {
     float: right;
@@ -75,26 +81,30 @@
     border: #111 1px solid;
     color: #111;
 }
-.article_footer .btn_red {
+a .btn_red {
     float: right;
     display: block;
     color: #de686d;
     margin: 3px 20px 0 0;
     padding: 4px 8px;
-    background: #e5e5e5;
     border-radius: 4px;
     border: #de686d 1px solid;
 }
-.article_footer .btn_red:hover {
+a .btn_red:hover {
     color: #fff;
     background: #de686d;
     border: #de686d 1px solid;
 }
-.article_footer .btn_blue {
+a .btn_blue{
+    float: right;
+    display: block;
+    margin: 3px 20px 0 0;
+    padding: 4px 8px;
+    border-radius: 4px;
     color: #3e6bd8;
     border: #3e6bd8 1px solid;
 }
-.article_footer .btn_blue:hover {
+a .btn_blue:hover {
     color: #fff;
     background: #3e6bd8;
     border: #3e6bd8 1px solid;
@@ -103,14 +113,12 @@
     padding: 15px 20px 20px;
 }
 .comment {
-    padding-top: 10px;
+    padding: 10px 5px 30px 5px;
     border-bottom: 1px dashed #bbb;
+    position: relative;
 }
 .comment_title {
     height: 32px;
-}
-.comment_title img {
-    border-radius: 16px;
 }
 .comment_title li {
     float: left;
@@ -118,13 +126,141 @@
     line-height: 32px;
     height: 32px;
 }
+.comment_title .portrait {
+    margin: 0px;
+}
 .comment_content {
-    padding: 10px 25px 10px 45px;
+    padding: 5px 20px 0px 35px;
     line-height: 20px;
     font-size: 14px;
 }
+.comment_content i {
+    color: #ef3030;
+}
 .moderate {
-    height: 40px;
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+}
+/* 评论编辑错误提示 */
+.form_edit_error {
+    color: #ff0a0ab3;
+    font-size: 16px;
+    position: relative;
+    left: 280px;
+    letter-spacing: 3px;
+    display: inline-block;
+}
+/* 文章编辑 */
+.edit_po_ti {
+    text-align: center;
+    font-size: 24px;
+    letter-spacing: 4px;
+}
+
+.edit_post {
+    width: 760px;
+    margin: auto;
+    padding: 30px 120px;
+}
+.form_article_title {
+    line-height: 35px;
+    font-size: 17px;
+}
+.title_table {
+    width:100%;
+    height: 35px;
+    background: #fbfbfb;
+    border-style: solid;
+}
+.article_table {
+    width:100%;
+    height: 350px;
+    background: #fbfbfb;
+    margin-bottom: 10px;
+    border-style: solid;
+}
+/* 用户资料 */
+.profile {
+    position: relative;
+    padding: 30px 15px;
+}
+.profile-thumbnail {
+    margin-left: 20px;
+    border-radius: 50%;
+}
+.profile-text {
+    padding-left: 300px;
+}
+.profile-text h3 {
+    font-size: 20px;
+    font-weight: bold;
+}
+.profile-text p {
+    line-height: 20px;
+}
+.btn_follow_blue {
+    margin: 5px 20px 0 0;
+    padding: 3px 8px;
+    cursor: pointer;
+    border-style: none;
+    border-radius: 7px;
+    background: #3e6bd8;
+    color: #fff;
+    font-size: 15px;
+    text-decoration: none;
+}
+button {
+button {
+    outline: none;
+}
+.btn_follow_red {
+    background: #f2676d;
+    color: #fff;
+}
+.btn_follow_green {
+    margin: 5px 20px 0 0;
+    padding: 4px 8px;
+    background: #11ae34;
+    color: #fff;
+    border-radius: 4px;
+}
+.profile-edit a span{
+    margin-top: 10px;
+}
+/* 关注者列表 */
+.follow-img {
+    margin-right: 25px;
+}
+.follow-img img {
+    border-radius: 5px;
+}
+.follow-text {
+    overflow: hidden;
+}
+.follow-item {
+    padding: 20px;
+    border-bottom: #d8d8d8 1px solid ;
+}
+.follow-item h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: -6px;
+}
+.follow-about {
+    margin-top: 4px;
+    font-size: 15px;
+}
+.follow-view {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #8590a6;
+}
+.follow-view span {
+    margin-right: 6px;
+}
+.follow-item a .btn_follow {
+    margin-top: 10px;
 }
 
 
@@ -135,7 +271,7 @@
 
 
 
-.con_left {
+/*.con_left {
 	width: 170px;
 	float: left;
 	margin-top: 10px;
@@ -203,7 +339,7 @@
 .nextinfos {
 	text-align: center;
 }
-/* 动态 */
+*//* 动态 *//*
 .news_list {
 	margin: 10px 0;
 	overflow: hidden
@@ -229,7 +365,7 @@
 	color: #f00;
 	text-decoration: underline
 }
-/* 分页 */
+*//* 分页 *//*
 .pagelist {
 	text-align: center;
 	color: #666;
@@ -322,7 +458,7 @@ a.readmore {
 .pingl.f_r {
 	padding: 0;
 }
-/* 文字图片列表*/
+*//* 文字图片列表*//*
 .dtxw {
 	overflow: hidden;
 	margin: 30px auto
@@ -425,7 +561,7 @@ a.readmore {
 .dttext {
 	line-height: 24px
 }
-/* 图片展示 */
+*//* 图片展示 *//*
 .lispic {
 	padding: 20px 0;
 	overflow: hidden;
@@ -465,4 +601,4 @@ a.readmore {
 	-moz-transform: scale(1.1);
 	-o-transform: scale(1.1);
 	-ms-transform: scale(1.1);
-}
+}*/

@@ -4,6 +4,7 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -11,8 +12,8 @@
     <div class="container">
         <div class="bloglist f_l">
             {% block page_content %}
-            <div class="nav-tabs">
-                <ul>
+                {% if current_user.is_authenticated %}
+                <ul class="nav-tabs">
                     <li {% if not show_followed %} class='active'{% endif %}>
                         <a href="{{ url_for('.show_all') }}">全部文章</a>
                     </li>
@@ -20,8 +21,7 @@
                         <a href="{{ url_for('.show_followed') }}">我的关注</a>
                     </li>
                 </ul>
-            </div>
-
+                {% endif %}
                 {% include '_articles_summary.html' %}
 
             {% endblock %}
@@ -29,7 +29,7 @@
 
         <div class="r_box f_r">
             {% block subfield %}
-            <div class="tit01">
+            <div class="s_box">
                 <h3 class="tit">标签</h3>
                 <div class="gzwm">
                     <ul>
@@ -38,34 +38,16 @@
                     </ul>
                 </div>
             </div>
-            <div class="tuwen">
-                <h3 class="tit">最新文章</h3>
-                    <ul>
-                      <li><a href="/"><img src="images/01.jpg"><b>住在手机里的朋友</b></a>
-                        <p><span class="tulanmu"><a href="/">手机配件</a></span><span class="tutime">2015-02-15</span></p>
-                      </li>
-                      <li><a href="/"><img src="images/06.jpg"><b>住在手机里的朋友</b></a>
-                        <p><span class="tulanmu"><a href="/">手机配件</a></span><span class="tutime">2015-02-15</span></p>
-                      </li>
-                      <li><a href="/"><img src="images/04.jpg"><b>教你怎样用欠费手机拨打电话</b></a>
-                        <p><span class="tulanmu"><a href="/">手机配件</a></span><span class="tutime">2015-02-15</span></p>
-                      </li>
-                    </ul>
+            <div class="s_box tuwen">
+                <h3 class="tit">热评文章</h3>
+                    {% include '_com_articles.html' %}
             </div>
-            <div class="ph">
+            <div class="s_box">
                 <h3 class="tit">点击排行</h3>
-                    <ul class="rank">
-                      <li><a href="/jstt/bj/2017-07-13/784.html" title="【心路历程】请不要在设计这条路上徘徊啦" target="_blank">【心路历程】请不要在设计这条路上徘徊啦</a></li>
-                      <li><a href="/news/s/2016-05-20/751.html" title="IP要突破2000+了" target="_blank">IP要突破2000+了</a></li>
-                      <li><a href="/jstt/web/2015-07-03/749.html" title="帝国cms首页、自定义页面如何实现分页" target="_blank">帝国cms首页、自定义页面如何实现分页</a></li>
-                      <li><a href="/jstt/web/2015-02-25/745.html" title="【已评选】给我模板PSD源文件，我给你设计HTML！" target="_blank">【已评选】给我模板PSD源文件，我给你设计HTML！</a></li>
-                    </ul>
+                    {% include '_views_articles.html' %}
             </div>
-            <div class="gyw">
-                <h3 class="tit">关于我</h3>
-            </div>
+            <div class="ad"><img src="{{ url_for('static', filename='images/lan.jpg') }}"></div>
             {% endblock %}
-            <div class="ad"> <img src="images/03.jpg"> </div>
         </div>
         {% block pagination %}
         {% if pagination %}

@@ -40,7 +40,74 @@ $(function(){
             });
         });
 });
-
+// flash消息闪现
 $(function() {
     $(".alert-warning").fadeTo(3000, 400).fadeOut(1000);
 });
+// 个人资料分栏
+$(function() {
+    $('.profile-nav li').eq(0).addClass("act");
+    $('.profile-nav li').each(function(){
+        $(this).click(function(){
+            $(this).addClass("act").siblings().removeClass("act");
+        })
+    })
+})
+// 个人资料分栏下显示
+function showAtBottom(url){
+    $.ajax({
+        type: "GET",
+        url: url,
+        dataType: "html",
+        success : function(data) {
+            $(".profile-content").html(data);
+        },
+        error : function(status) {
+            $(".profile-content").html("<h3>获取数据失败!</h3>" + status);
+        }
+    });
+}
+// 关注和取消关注
+function follow(username,id) {
+    var btn_this = $('#'+id);
+    if (!btn_this.hasClass('btn_follow_red')) {
+        $.get('/follow/'+username, function(data,status) {
+            if (status=='success') {
+                btn_this.text('取消关注').addClass('btn_follow_red');
+            } else {
+                btn_this.text('异常');
+            }
+        });
+    }
+    else {
+        $.get('/unfollow/'+username, function(data,status) {
+            if (status=='success') {
+                btn_this.text('+ 关注').removeClass('btn_follow_red');
+            } else {
+                btn_this.text('异常');
+            }
+        });
+    }
+}
+// 屏蔽与解禁评论
+function com_disa(id) {
+    var btn_this = $('#'+id);
+    if (!btn_this.hasClass('btn_follow_red')) {
+        $.get('/moderate/enable/'+id, function(data,status) {
+            if (status=='success') {
+                btn_this.text('屏蔽').addClass('btn_follow_red');
+            } else {
+                btn_this.text('异常');
+            }
+        });
+    }
+    else {
+        $.get('/moderate/disable/'+id, function(data,status) {
+            if (status=='success') {
+                btn_this.text('解禁').removeClass('btn_follow_red');
+            } else {
+                btn_this.text('异常');
+            }
+        });
+    }
+}
