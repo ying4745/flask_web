@@ -29,7 +29,7 @@
     clear: both;
 }
 .nav-tabs li {
-    background-color: #f5f5f5;
+    background-color: #fff;
     border-radius: 6px;
     float: left;
     padding: 0px 8px;
@@ -37,6 +37,7 @@
 }
 .nav-tabs li.active {
     font-weight: bold;
+    color: #000;
     border-bottom: #808080 2px solid;
 }
 .act {
@@ -52,15 +53,19 @@
 }
 .dateview li{
     float: left;
-	margin-right: 15px;
+	margin-right: 10px;
 }
 .dateview li a {
 	color: #2d2d2dcc;
+	margin-right: 3px;
+}
+.dateview li i{
+    font-size: 12px;
 }
 a.readmore {
 	background: #4a4a4a;
 	color: #fff;
-	padding: 2px 8px;
+	padding: 3px 8px;
 	float: right;
 	margin: 0 10px;
 	border-radius: 3px;
@@ -123,31 +128,50 @@ a.readmore {
     width: 100%;
     overflow: hidden;
 }
-
-
-
-
-.gzwm ul {
-	width: 100%;
-	overflow: hidden;
+/* 标签 */
+.label_box {
+    list-style: none outside none;
+    margin: 15px 2px;
+    text-align: center;
 }
-.gzwm li {
-	width: 60px;
-	margin: 0 10px 0 5px;
-	float: left;
+.label_box li {
+    display: inline-block;
+    margin: 5px 0;
 }
-.gzwm li a {
-	color: #747F8C;
-	width: 62px;
-	text-align: center;
-	padding-top: 60px;
-	float: left;
+.label_box li a {
+      	-moz-border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
+      	-webkit-border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
+        border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
+      	background: #232B30; /* old browsers */
+      	background: -moz-linear-gradient(top, #3D4850 3%,
+      	    #313d45 4%, #232B30 100%); /* firefox */
+      	background: -webkit-gradient(linear, left top, left bottom,
+      	    color-stop(3%,#3D4850), color-stop(4%,#313d45),
+      	     color-stop(100%,#232B30)); /* webkit */
+      	filter: progid:DXImageTransform.Microsoft.
+      	    gradient( startColorstr='#3D4850', endColorstr='#232B30',
+            GradientType=0 ); /* ie */
+      	-moz-box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* Firefox */
+      	-webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* Safari, Chrome */
+      	box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* CSS3 */
+        color: #FFFFFF;
+        margin-left: 5px;
+        padding: 3px 12px;
+      	-webkit-transition: all 0.5s ease-in 0s;
+        -moz-transition: all 0.5s ease-in 0s;
+        -o-transition: all 0.5s ease-in 0s;
+        transition: all 0.5s ease-in 0s;
+      	zoom:1;
 }
-.gzwm .email {
-	background: url(../images/gz01.png) no-repeat;
-}
-.gzwm li a:hover {
-	opacity: 0.6;
+.label_box li a:hover {
+    -moz-border-radius:20px 30px 10px 10px / 70px 20px 38px 20px;
+    -webkit-border-radius:20px 30px 10px 10px / 70px 20px 38px 20px;
+    border-radius:30px 20px 25px 38px / 50px 10px 50px 20px;
+    background: #4C5A64; /* old browsers */
+    background: -moz-linear-gradient(top, #4C5A64 3%, #404F5A 4%, #2E3940 100%); /* firefox */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(3%,#4C5A64), color-stop(4%,#404F5A), color-stop(100%,#2E3940)); /* webkit */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4C5A64', endColorstr='#2E3940',GradientType=0 ); /* ie */
+    color: #7cf258;
 }
 /*图文列表*/
 .tuwen {
@@ -184,6 +208,9 @@ a.readmore {
 .ph {
 	font-size: 12px;
     color: #2f2f2fb3;
+}
+.rank li i {
+    font-size: 12px;
 }
 /*首页左侧广告 260*/
 .ad {

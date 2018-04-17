@@ -22,7 +22,8 @@
                     </li>
                 </ul>
                 {% endif %}
-                {% include '_articles_summary.html' %}
+
+                {% include 'module/_articles_summary.html' %}
 
             {% endblock %}
         </div>
@@ -31,28 +32,30 @@
             {% block subfield %}
             <div class="s_box">
                 <h3 class="tit">标签</h3>
-                <div class="gzwm">
-                    <ul>
-                        <li><a class="email" href="#mailto:admin@admin.com" target="_blank">
-                            我的邮箱</a></li>
-                    </ul>
-                </div>
+                <ul class="label_box">
+                    {% for tag in tags %}
+                        <li>
+                            <a href="{{ url_for('main.tag', name=tag.name) }}">
+                                {{ tag.name }} ({{ tag.articles.count() }})</a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
             <div class="s_box tuwen">
                 <h3 class="tit">热评文章</h3>
-                    {% include '_com_articles.html' %}
+                    {% include 'module/_com_articles.html' %}
             </div>
             <div class="s_box">
                 <h3 class="tit">点击排行</h3>
-                    {% include '_views_articles.html' %}
+                    {% include 'module/_views_articles.html' %}
             </div>
             <div class="ad"><img src="{{ url_for('static', filename='images/lan.jpg') }}"></div>
             {% endblock %}
         </div>
         {% block pagination %}
-        {% if pagination %}
-            {{ macros.pagination_widget(pagination, 'main.index') }}
-        {% endif %}
+            {% if pagination %}
+                {{ macros.pagination_widget(pagination, endpoint) }}
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}

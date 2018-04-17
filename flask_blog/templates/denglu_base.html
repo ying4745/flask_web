@@ -32,7 +32,7 @@
             <img src="{{ url_for('static', filename='images/login.jpg') }}" alt="主页"></a>
         </div>
 
-    {% from '_form_error.html' import render_message %}
+    {% from 'module/_form_error.html' import render_message %}
     {% block content %}{% endblock %}
 
         <div class="footerpush"></div>

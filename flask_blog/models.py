@@ -248,12 +248,40 @@ class AnonymousUser(AnonymousUserMixin):  # 出于一致性考虑，未登录时
     def is_administrator(self):
         return False
 
-    def avatar(self):
-        return '99.jpg'
-
 
 login_manager.anonymous_user = AnonymousUser
 # 设置未登录状态的current_user为AnonymousUser类
+
+
+article_tag_table = db.Table('article_tag_table',
+                             db.Column('article_id', db.Integer, db.ForeignKey('articles.id')),
+                             db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')))
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), unique=True, index=True,
+                     nullable=False)
+
+    @staticmethod
+    def generate_fake(count=30):
+        from random import seed
+
+        import forgery_py
+        from sqlalchemy.exc import IntegrityError
+
+        seed()
+        for i in range(count):
+            t = Tag(name=forgery_py.lorem_ipsum.word())
+            db.session.add(t)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+    def __repr__(self):
+        return '<Tag %r>' % self.name
+
 
 class Article(db.Model):
     __tablename__ = 'articles'
@@ -266,6 +294,10 @@ class Article(db.Model):
     views = db.Column(db.Integer, default=int(0))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     comments = db.relationship('Comment', backref='article', lazy='dynamic')
+    tags = db.relationship('Tag',
+                           secondary = article_tag_table,
+                           backref=db.backref('articles', lazy='dynamic'),
+                           lazy = 'dynamic')
 
     @staticmethod  # 生成虚拟数据
     def generate_fake(count=100):
@@ -274,12 +306,25 @@ class Article(db.Model):
 
         seed()
         user_count = User.query.count()
+        tag_count = Tag.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
-            a = Article(title=forgery_py.lorem_ipsum.title(),
-                        content=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+            a = Article(title=forgery_py.lorem_ipsum.title(randint(1,10)),
+                        content=forgery_py.lorem_ipsum.paragraphs(randint(10, 20)),
                         timestamp=forgery_py.date.datetime(True),
                         author=u)
+            allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                            'h1', 'h2', 'h3', 'p']
+            lines = a.content.split('\n')
+            temp = '\n'.join(lines[:8])
+            a.summary = bleach.linkify(bleach.clean(
+                markdown(temp, output_format='html'),
+                tags=allowed_tags, strip=True))
+            tag_num = randint(1,5)
+            for j in range(tag_num):
+                t = Tag.query.offset(randint(0, tag_count - 1)).first()
+                a.tags.append(t)
             db.session.add(a)
             db.session.commit()
 

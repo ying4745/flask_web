@@ -12,6 +12,11 @@
             <li>
                 <i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm') }}
             </li>
+            <li>{% for tag in article.tags.all() %}
+                 <a href="{{ url_for('main.tag', name=tag.name) }}">
+                     <i class="iconfont icon-biaoqian"></i>{{ tag.name }}</a>
+                {% endfor %}
+            </li>
             <li>
                 <i class="iconfont icon-browse"></i> {{ article.views }}
             </li>
@@ -19,7 +24,6 @@
                 <a href="{{ url_for('main.article', id=article.id) }}#comments">
                    <i class="iconfont icon-pinglun1"></i> {{ article.comments.count() }}</a>
             </li>
-            <li><i class="iconfont icon-biaoqian"></i> <a href="#">心得笔记</a></li>
         </ul>
     </div>
     <ul class="articles-summary-body">

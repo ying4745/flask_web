@@ -6,14 +6,16 @@
 {% block page_content %}
 {% for article in articles %}
 <div class="article s_box">
-    <h2 class="nh1"><span>您现在的位置是：<a href="/" target="_blank">网站首页</a>
-        >><a href="#" target="_blank">未分类</a>>> 正文</span></h2>
     <h3 class="article_title"><a href="{{ url_for('main.article', id=article.id) }}">
     {{ article.title }}</a></h3>
     <ul class="article_date">
         <li><i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}</li>
-        <li><i class="iconfont icon-biaoqian"></i> <a href="#">心得笔记</a></li>
-        <li class="f_r"><i class="iconfont icon-pinglun1"></i> <a href="{{ url_for('main.article', id=article.id) }}#comments">
+        <li>{% for tag in article.tags.all() %}
+                <i class="iconfont icon-biaoqian"></i>
+                 <a href="{{ url_for('main.tag', name=tag.name) }}">{{ tag.name }}</a>
+            {% endfor %}
+        </li>
+        <li class="f_r"><a href="{{ url_for('main.article', id=article.id) }}#comments"><i class="iconfont icon-pinglun1"></i>
                 ({{ article.comments.count() }})</a></li>
         <li class="f_r"><i class="iconfont icon-browse"></i> ({{ article.views }})</li>
     </ul>
@@ -60,7 +62,7 @@
 </div>
 
 {% if comments %}
-{% include '_comments.html' %}
+{% include 'module/_comments.html' %}
 {% endif %}
 
 {% endblock %}

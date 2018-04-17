@@ -4,7 +4,7 @@ from . import main
 from .forms import EditProfiledAdminForm, ArticleForm, CommentForm, UserForm
 from flask_login import login_required, current_user
 from ..decorators import admin_required
-from ..models import User, Role, Permission, Article, Comment, Follow
+from ..models import User, Role, Permission, Article, Comment, Follow, Tag
 from flask_blog import db
 from ..decorators import permission_required
 from sqlalchemy import func
@@ -27,8 +27,22 @@ def index():  # 主页
     views_articles = Article.query.order_by(Article.views.desc()).limit(10).all()
     com_articles = db.session.query(Article.id,Article.title,func.count(Comment.id).label('num')).join(Comment)\
         .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    tags = Tag.query.all()
     return render_template('index.html', articles=articles, views_articles=views_articles,
-                          com_articles=com_articles, pagination=pagination, show_followed=show_followed)
+                          com_articles=com_articles, pagination=pagination, tags=tags,
+                           show_followed=show_followed, endpoint='main.index')
+
+
+@main.route('/tag/<name>', methods=['GET', 'POST'])
+def tag(name):
+    tag = Tag.query.filter_by(name=name).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    pagination = tag.articles.order_by(Article.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
+        error_out=False)
+    articles = pagination.items
+    return render_template('tag.html', tag=tag, pagination=pagination,
+                           articles=articles, endpoint='main.tag')
 
 
 @main.route('/all')  # 显示所有文章
