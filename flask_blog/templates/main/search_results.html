@@ -1,0 +1,15 @@
+{% extends "main/index.html" %}
+{% import "_macros.html" as macros %}
+
+{% block page_content %}
+    <ul class="nav-tabs">
+        <li class="active"><span>关键字: {{ query_con }}</span></li>
+    </ul>
+    {% include 'module/_articles_summary.html' %}
+{% endblock %}
+
+{% block pagination %}
+    {% if pagination %}
+        {{ macros.pagination_widget(pagination, endpoint, query_con=query_con) }}
+    {% endif %}
+{% endblock %}

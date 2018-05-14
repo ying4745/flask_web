@@ -8,6 +8,8 @@ from datetime import datetime
 from markdown import markdown
 import bleach
 import hashlib
+from jieba.analyse.analyzer import ChineseAnalyzer
+
 
 db = SQLAlchemy()
 
@@ -302,6 +304,8 @@ class Tag(db.Model):
 
 class Article(db.Model):
     __tablename__ = 'articles'
+    __searchable__ = ['content', 'title']  #  添加搜索内容
+    __analyzer__ = ChineseAnalyzer()  #  中文分词
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), unique=True)
     content = db.Column(db.Text)

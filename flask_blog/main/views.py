@@ -9,6 +9,7 @@ from flask_blog import db
 from ..decorators import permission_required
 from sqlalchemy import func
 from functools import wraps
+import flask_whooshalchemyplus
 
 # 检查用户邮箱是否确认的装饰器
 def confirmed(f):
@@ -80,6 +81,30 @@ def category(name):  # 分类文章列表
                            articles=articles, endpoint='main.category', categorys=categorys)
 
 
+@main.route('/search', methods= [ 'POST'])
+def search():
+    if not request.form['search']:
+        return redirect(url_for('.index'))
+    return redirect(url_for('.search_results', query_con = request.form['search']))
+
+
+@main.route('/search_results/<query_con>')
+def search_results(query_con):
+    results = Article.query.whoosh_search(query_con)
+    page = request.args.get('page', 1, type=int)
+    pagination = results.order_by(Article.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
+        error_out=False)
+    articles = pagination.items
+    views_articles = Article.query.order_by(Article.views.desc()).limit(10).all()
+    com_articles = db.session.query(Article.id, Article.title, func.count(Comment.id).label('num')).join(Comment) \
+        .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    tags = Tag.query.all()
+    return render_template('main/search_results.html', query_con =query_con, articles=articles,
+                           pagination=pagination, endpoint='main.search_results',
+                           views_articles=views_articles, com_articles=com_articles, tags=tags,)
+
+
 @main.route('/all')  # 显示所有文章
 @login_required
 def show_all():
@@ -111,6 +136,7 @@ def publish():
             article.tags.append(tag)
         db.session.add(article)
         db.session.commit()
+        flask_whooshalchemyplus.index_one_model(Article)
         flash('你的文章已经发布了')
         return redirect(url_for('.article', id=article.id))
     return render_template('main/edit_article.html', form=form)

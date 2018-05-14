@@ -4,6 +4,7 @@ from .extensions import moment, mail, login_manager, flask_admin
 from .models import db, User, Article, Comment, Tag, Category
 from . import admin
 import os
+import flask_whooshalchemyplus
 
 
 flask_admin.add_view(admin.UserView(User, db.session, name='用户管理'))
@@ -26,6 +27,7 @@ def create_app(config_name):
     mail.init_app(app)
     login_manager.init_app(app)
     flask_admin.init_app(app)
+    flask_whooshalchemyplus.init_app(app)
 
 
     from .main import main as main_blueprint  # 注册蓝本

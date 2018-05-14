@@ -47,8 +47,8 @@
                 {% endif %}
                 </div>
 		        <div class="f_r">
-                <form action="#" method="post" name="searchform" id="searchform">
-                    <input name="keyboard" id="keyboard" class="input_text" value="请输入关键字"
+                <form action="{{ url_for('main.search') }}" method="POST">
+                    <input name="search" class="input_text" value="请输入关键字"
                            style="color: rgb(153, 153, 153);"
                            onfocus="if(value=='请输入关键字'){this.style.color='#000';value=''}"
                            onblur="if(value==''){this.style.color='#999';value='请输入关键字'}" type="text">
