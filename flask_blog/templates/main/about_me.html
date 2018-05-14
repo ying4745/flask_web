@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
+
+{% block title %}关于我{% endblock %}
+
+{% block content %}
+<div class="container about_me">
+    <div class="s_box">
+        <img src="{{ url_for('static', filename='images/my.jpg') }}" class="portrait">
+        <h3>{{ article.title }}</h3>
+        {% if article.content_html %}
+            {{ article.content_html | safe }}
+        {% else %}
+            {{ article.content }}
+        {% endif %}
+        <a href="{{ url_for('main.edit_about') }}"><span class="btn_blue">编辑</span></a>
+    </div>
+    <div class="s_box">
+        <h3 id="comments">留言({{ article.comments.count() }})</h3>
+        {% if current_user.can(Permission.COMMENT) %}
+            <div class="comments_form">
+                <form  role="form" method="post" >
+                    {{ form.hidden_tag() }}
+                    {{ form.content.label }}
+                    {% if form.content.errors %}
+                        {% for error in form.content.errors %}
+                            <p class="form_edit_error">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {{ form.content(class='ckeditor comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
+                    {{ form.submit(class='com_btn') }}
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+{% if comments %}
+{% include 'module/_comments.html' %}
+{% endif %}
+</div>
+{% endblock %}
+
+{% block pagination %}
+{% if pagination %}
+    {{ macros.pagination_widget(pagination, '.about', fragment='#comments') }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="//cdn.ckeditor.com/4.9.2/basic/ckeditor.js"></script>
+{% endblock %}

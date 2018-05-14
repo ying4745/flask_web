@@ -12,6 +12,10 @@
             <li>
                 <i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm') }}
             </li>
+            <li>
+                <a href="{{ url_for('main.category', name=article.category.name) }}">
+                    <i class="iconfont icon-icon-test"></i> {{ article.category.name }}</a>
+            </li>
             <li>{% for tag in article.tags.all() %}
                  <a href="{{ url_for('main.tag', name=tag.name) }}">
                      <i class="iconfont icon-biaoqian"></i>{{ tag.name }}</a>

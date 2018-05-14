@@ -1,22 +1,19 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from config import config
-from flask_bootstrap import Bootstrap
-from flask_moment import Moment
-from flask_login import LoginManager
-from flask_mail import Mail
-from flask_pagedown import PageDown
+from .extensions import moment, mail, login_manager, flask_admin
+from .models import db, User, Article, Comment, Tag, Category
+from . import admin
+import os
 
-db = SQLAlchemy()
-bootstrap = Bootstrap()
-moment = Moment()
-pagedown = PageDown()
-mail = Mail()
 
-login_manager = LoginManager()
-login_manager.session_protection = 'strong'
-login_manager.login_view = 'auth.login'
-login_manager.login_message = '请登录后再访问'
+flask_admin.add_view(admin.UserView(User, db.session, name='用户管理'))
+flask_admin.add_view(admin.ArticleView(Article, db.session, name='文章管理'))
+flask_admin.add_view(admin.CommentView(Comment, db.session, name='评论管理'))
+flask_admin.add_view(admin.TagView(Tag, db.session, name='标签管理'))
+flask_admin.add_view(admin.CategoryView(Category, db.session, name='分类管理'))
+flask_admin.add_view(admin.StaticFileAdmin(
+    os.path.join(os.path.dirname(__file__), 'static'), '/static', name='文件管理'))
+flask_admin.add_view(admin.CustomView(name='返回网站'))
 
 
 def create_app(config_name):
@@ -25,11 +22,11 @@ def create_app(config_name):
     config[config_name].init_app(app)  # 调用 init_app() 可以完成初始化过程
 
     db.init_app(app)
-    bootstrap.init_app(app)
     moment.init_app(app)
     mail.init_app(app)
-    pagedown.init_app(app)
     login_manager.init_app(app)
+    flask_admin.init_app(app)
+
 
     from .main import main as main_blueprint  # 注册蓝本
     app.register_blueprint(main_blueprint)

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}编辑文章{% endblock %}
+
+{% block content %}
+<div class="edit_post s_box clearfix">
+    {% from 'module/_form_error.html' import render_message %}
+
+    <h3 class="edit_po_ti">编辑文章</h3>
+
+    <form  role="form" method="post">
+        {{ form.hidden_tag() }}
+        {{ form.title.label(class='form_article_title') }}
+            {% if form.title.errors %}
+                {% for error in form.title.errors %}
+                    <div class="form_edit_error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        {{ form.title(class='title_table',placeholder='') }}
+
+        {{ form.category.label(class='form_article_title') }}
+            {% if form.category.errors %}
+                {% for error in form.category.errors %}
+                    <div class="form_edit_error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        {{ form.category(class='title_table') }}
+
+        {{ form.tags.label(class='form_article_title') }}
+            {% if form.tags.errors %}
+                {% for error in form.tags.errors %}
+                    <div class="form_edit_error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        {{ form.tags }}
+
+        {{ form.content.label(class='form_article_title') }}
+            {% if form.content.errors %}
+                {% for error in form.content.errors %}
+                    <div class="form_edit_error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        {{ form.content(class='ckeditor title_table article_table',placeholder='') }}
+
+        {{ form.submit(class='com_btn') }}
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="{{ url_for('static', filename='js/zh-CN.js') }}" ></script>
+<script src="https://cdn.ckeditor.com/4.9.2/standard/ckeditor.js"></script>
+<script type="text/javascript">
+    $('#tags').select2({
+        width: '100%',
+        placeholder: "添加标签",
+        maximumSelectionLength: 5, // 设置最多可以选择多少个
+        allowClear: true, // 设置是否可以一次性清除掉所有标签
+    });
+</script>
+{% endblock %}

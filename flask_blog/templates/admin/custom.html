@@ -1,0 +1,22 @@
+{% extends 'admin/master.html' %}
+{% block head %}
+    <style>
+        .daohang li {
+            margin: 20px;
+            font-size: 18px;
+            list-style: none;
+            float : left;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2>快捷导航</h2>
+    <ul class="daohang">
+        <li><a href="{{ url_for('user.create_view') }}">创建用户</a></li>
+        <li><a href="{{ url_for('article.create_view') }}">添加文章</a></li>
+        <li><a href="{{ url_for('tag.create_view') }}">添加标签</a></li>
+        <li><a href="{{ url_for('category.create_view') }}">增加分类</a></li>
+    </ul>
+
+{% endblock %}

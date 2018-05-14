@@ -12,7 +12,7 @@
 	font-family: "微软雅黑";
 }
 .articles-summary-body {
-    padding: 10px 15px 25px 15px;
+    padding: 10px 15px 28px 15px;
 }
 .bloglist ul p {
     text-indent: 2em;
@@ -48,7 +48,7 @@
 	width: 100%;
 	overflow: hidden;
 	margin-top: 5px;
-	font-size: 12px;
+	font-size: 13px;
 	color: #2f2f2fb3;
 }
 .dateview li{
@@ -60,7 +60,7 @@
 	margin-right: 3px;
 }
 .dateview li i{
-    font-size: 12px;
+    font-size: 13px;
 }
 a.readmore {
 	background: #4a4a4a;
@@ -132,7 +132,6 @@ a.readmore {
 .label_box {
     list-style: none outside none;
     margin: 15px 2px;
-    text-align: center;
 }
 .label_box li {
     display: inline-block;
@@ -142,19 +141,11 @@ a.readmore {
       	-moz-border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
       	-webkit-border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
         border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
-      	background: #232B30; /* old browsers */
-      	background: -moz-linear-gradient(top, #3D4850 3%,
-      	    #313d45 4%, #232B30 100%); /* firefox */
-      	background: -webkit-gradient(linear, left top, left bottom,
-      	    color-stop(3%,#3D4850), color-stop(4%,#313d45),
-      	     color-stop(100%,#232B30)); /* webkit */
-      	filter: progid:DXImageTransform.Microsoft.
-      	    gradient( startColorstr='#3D4850', endColorstr='#232B30',
-            GradientType=0 ); /* ie */
+      	background: #394748;
       	-moz-box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* Firefox */
       	-webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* Safari, Chrome */
       	box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* CSS3 */
-        color: #FFFFFF;
+        color: #FFF;
         margin-left: 5px;
         padding: 3px 12px;
       	-webkit-transition: all 0.5s ease-in 0s;
@@ -167,11 +158,8 @@ a.readmore {
     -moz-border-radius:20px 30px 10px 10px / 70px 20px 38px 20px;
     -webkit-border-radius:20px 30px 10px 10px / 70px 20px 38px 20px;
     border-radius:30px 20px 25px 38px / 50px 10px 50px 20px;
-    background: #4C5A64; /* old browsers */
-    background: -moz-linear-gradient(top, #4C5A64 3%, #404F5A 4%, #2E3940 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(3%,#4C5A64), color-stop(4%,#404F5A), color-stop(100%,#2E3940)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4C5A64', endColorstr='#2E3940',GradientType=0 ); /* ie */
-    color: #7cf258;
+    background: #232B30;
+    color: #48d514;
 }
 /*图文列表*/
 .tuwen {

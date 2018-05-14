@@ -2,11 +2,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from flask import current_app, request
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from . import login_manager, db
+from . import login_manager
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from markdown import markdown
 import bleach
 import hashlib
+
+db = SQLAlchemy()
 
 
 class Permission:  # 权限
@@ -130,7 +133,7 @@ class User(db.Model, UserMixin):
         db.session.add(self)
 
     @property  # 把方法变成属性调用
-    def password(self):  #读取会报错
+    def password(self):  # 读取会报错
         raise AttributeError('密码不可读取')
 
     @password.setter  # 写入密码的散列值
@@ -143,7 +146,7 @@ class User(db.Model, UserMixin):
     def generate_confirmation_token(self, expiration=3600):
         # 生成一个令牌，有效期默认为一小时
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'confirm':self.id})
+        return s.dumps({'confirm': self.id})
 
     def confirm(self, token):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -151,7 +154,7 @@ class User(db.Model, UserMixin):
             data = s.loads(token)  # 检验令牌
         except:
             return False
-        if data.get('confirm') != self.id:  #检查令牌中ID与当前登录用户是否匹配
+        if data.get('confirm') != self.id:  # 检查令牌中ID与当前登录用户是否匹配
             return False
         self.confirmed = True
         db.session.add(self)
@@ -236,6 +239,7 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
+
 @login_manager.user_loader  # 回调函数，使用指定的标识符加载用户
 def load_user(user_id):  # 能找到该用户，返回用户对象，否则返回None
     return User.query.get(int(user_id))
@@ -250,12 +254,25 @@ class AnonymousUser(AnonymousUserMixin):  # 出于一致性考虑，未登录时
 
 
 login_manager.anonymous_user = AnonymousUser
+
+
 # 设置未登录状态的current_user为AnonymousUser类
+
+
+class Category(db.Model):
+    __tablename__ = 'categorys'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), unique=True, index=True, nullable=False)
+    articles = db.relationship('Article', backref='category', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Category %r>' % self.name
 
 
 article_tag_table = db.Table('article_tag_table',
                              db.Column('article_id', db.Integer, db.ForeignKey('articles.id')),
                              db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')))
+
 
 class Tag(db.Model):
     __tablename__ = 'tags'
@@ -293,11 +310,12 @@ class Article(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     views = db.Column(db.Integer, default=int(0))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    categorys_id = db.Column(db.Integer, db.ForeignKey('categorys.id'))
     comments = db.relationship('Comment', backref='article', lazy='dynamic')
     tags = db.relationship('Tag',
-                           secondary = article_tag_table,
+                           secondary=article_tag_table,
                            backref=db.backref('articles', lazy='dynamic'),
-                           lazy = 'dynamic')
+                           lazy='dynamic')
 
     @staticmethod  # 生成虚拟数据
     def generate_fake(count=100):
@@ -309,7 +327,7 @@ class Article(db.Model):
         tag_count = Tag.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
-            a = Article(title=forgery_py.lorem_ipsum.title(randint(1,10)),
+            a = Article(title=forgery_py.lorem_ipsum.title(randint(1, 10)),
                         content=forgery_py.lorem_ipsum.paragraphs(randint(10, 20)),
                         timestamp=forgery_py.date.datetime(True),
                         author=u)
@@ -321,7 +339,7 @@ class Article(db.Model):
             a.summary = bleach.linkify(bleach.clean(
                 markdown(temp, output_format='html'),
                 tags=allowed_tags, strip=True))
-            tag_num = randint(1,5)
+            tag_num = randint(1, 5)
             for j in range(tag_num):
                 t = Tag.query.offset(randint(0, tag_count - 1)).first()
                 a.tags.append(t)
@@ -334,16 +352,22 @@ class Article(db.Model):
     @staticmethod  # 此装饰器表示此方法以类名调用
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p']
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'table', 'tr', 'td', 'tbody',
+                        'h1', 'h2', 'h3', 'p', 'img']
+        attrs = {
+            '*': ['class', 'style'],
+            'a': ['href', 'rel'],
+            'img': ['alt', 'src'],
+        }
+        styles = ['height', 'width']
         target.content_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
+            tags=allowed_tags, attributes=attrs, styles=styles, strip=True))
         lines = value.split('\n')
         temp = '\n'.join(lines[:5])
         target.summary = bleach.linkify(bleach.clean(
             markdown(temp, output_format='html'),
-            tags=allowed_tags, strip=True))
+            tags=allowed_tags, attributes=attrs, styles=styles, strip=True))
 
     def __repr__(self):
         return '<Article %r>' % self.title
@@ -366,8 +390,10 @@ class Comment(db.Model):
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i', 'p', 'strong']
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
+                        'p', 'li', 'ol', 'ul', 'strong']
         target.content_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'), tags=allowed_tags, strip=True))
+
 
 db.event.listen(Comment.content, 'set', Comment.on_changed_content)

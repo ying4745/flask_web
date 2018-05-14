@@ -4,10 +4,20 @@ from . import main
 from .forms import EditProfiledAdminForm, ArticleForm, CommentForm, UserForm
 from flask_login import login_required, current_user
 from ..decorators import admin_required
-from ..models import User, Role, Permission, Article, Comment, Follow, Tag
+from ..models import User, Role, Permission, Article, Comment, Follow, Tag, Category
 from flask_blog import db
 from ..decorators import permission_required
 from sqlalchemy import func
+from functools import wraps
+
+# 检查用户邮箱是否确认的装饰器
+def confirmed(f):
+    @wraps(f)
+    def decorator_function(*args, **kwargs):
+        if not current_user.confirmed:
+            return redirect(url_for('auth.unconfirmed'))
+        return f(*args, **kwargs)
+    return decorator_function
 
 
 @main.route('/')
@@ -28,21 +38,46 @@ def index():  # 主页
     com_articles = db.session.query(Article.id,Article.title,func.count(Comment.id).label('num')).join(Comment)\
         .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
     tags = Tag.query.all()
-    return render_template('index.html', articles=articles, views_articles=views_articles,
+    return render_template('main/index.html', articles=articles, views_articles=views_articles,
                           com_articles=com_articles, pagination=pagination, tags=tags,
                            show_followed=show_followed, endpoint='main.index')
 
 
 @main.route('/tag/<name>', methods=['GET', 'POST'])
-def tag(name):
+def tag(name):  # 标签文章列表
     tag = Tag.query.filter_by(name=name).first_or_404()
     page = request.args.get('page', 1, type=int)
     pagination = tag.articles.order_by(Article.timestamp.desc()).paginate(
         page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
         error_out=False)
     articles = pagination.items
-    return render_template('tag.html', tag=tag, pagination=pagination,
-                           articles=articles, endpoint='main.tag')
+    views_articles = tag.articles.order_by(Article.views.desc()).limit(10).all()
+    acc = tag.articles.subquery()
+    com_articles = db.session.query(acc,func.count(Comment.id).label('num')).join(Comment)\
+        .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    tags = Tag.query.all()
+    return render_template('main/tag.html', tag=tag, pagination=pagination,
+                           views_articles=views_articles, com_articles=com_articles,
+                           articles=articles, endpoint='main.tag', tags=tags)
+
+
+@main.route('/category/<name>', methods=['GET', 'POST'])
+def category(name):  # 分类文章列表
+    category = Category.query.filter_by(name=name).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    pagination = category.articles.order_by(Article.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_ARTICLES_PER_PAGE'],
+        error_out=False)
+    articles = pagination.items
+    views_articles = category.articles.order_by(Article.views.desc()).limit(10).all()
+    acc = category.articles.subquery()
+    com_articles = db.session.query(acc,func.count(Comment.id).label('num')).join(Comment)\
+        .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
+    categorys = Category.query.all()
+    tags = Tag.query.all()
+    return render_template('main/category.html', category=category, pagination=pagination,
+                           views_articles=views_articles, com_articles=com_articles,tags=tags,
+                           articles=articles, endpoint='main.category', categorys=categorys)
 
 
 @main.route('/all')  # 显示所有文章
@@ -63,18 +98,49 @@ def show_followed():
 
 @main.route('/publish', methods=['GET', 'POST'])   # 发布文章
 @login_required
+@confirmed
 @permission_required(Permission.WRITE_ARTICLES)
 def publish():
     form = ArticleForm()
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         article = Article(title=form.title.data, content=form.content.data,
+                          category = Category.query.get(form.category.data),
                           author=current_user._get_current_object())
+        for tag in form.tags.data:
+            article.tags.append(tag)
         db.session.add(article)
         db.session.commit()
         flash('你的文章已经发布了')
         return redirect(url_for('.article', id=article.id))
-    return render_template('edit_article.html', form=form)
+    return render_template('main/edit_article.html', form=form)
+
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit(id):  # 文章修改
+    article = Article.query.get_or_404(id)
+    if current_user != article.author and not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    form = ArticleForm()
+    if form.validate_on_submit():
+        article.title = form.title.data
+        article.content = form.content.data
+        article.category = Category.query.get(form.category.data)
+        for tag in article.tags.all():
+            article.tags.remove(tag)
+        for tag in form.tags.data:
+            article.tags.append(tag)
+        db.session.add(article)
+        flash('文章已经更新！')
+        return redirect(url_for('.article', id=article.id))
+    form.title.data = article.title
+    form.category.data = article.categorys_id
+    form.content.data = article.content
+    # 用QuerySelectMultipleField的话这里直接赋值给form.tags.data就可以了，用SelectMultipleField就不行了
+    form.tags.data = article.tags.all()
+    return render_template('main/edit_article.html', form=form)
+
 
 @main.route('/user/modify/<username>', methods=['GET', 'POST'])
 @login_required
@@ -90,7 +156,7 @@ def edit_profile(username):
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', form=form)
+    return render_template('main/edit_profile.html', form=form)
 
 
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
@@ -115,7 +181,7 @@ def edit_profile_admin(id):  # 管理员修改个人资料
     form.name.data = user.name
     form.location.data = user.location
     form.about_me.data = user.about_me
-    return render_template('edit_profile.html', form=form)
+    return render_template('main/edit_profile.html', form=form)
 
 
 @main.route('/user/<username>')
@@ -131,8 +197,16 @@ def user(username):
     acc = db.session.query(Article).join(User).filter(User.username==username).subquery()
     com_articles = db.session.query(acc,func.count(Comment.id).label('num')).join(Comment)\
         .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
-    return render_template('user.html', user=user, articles=articles, views_articles=views_articles,
-                           com_articles=com_articles, endpoint='main.user',pagination=pagination)
+    user_articles = db.session.query(Article).join(User).filter(User.username == username).all()
+    tags = []
+    for art in user_articles:
+        for tag in art.tags.all():
+            if tag not in tags:
+                tags.append(tag)
+    return render_template('main/user.html', user=user, articles=articles,
+                           views_articles=views_articles, tags=tags,
+                           com_articles=com_articles, endpoint='main.user',
+                           pagination=pagination)
 
 
 @main.route('/article/<int:id>', methods=['GET', 'POST'])
@@ -163,26 +237,62 @@ def article(id):  # 单独显示文章
     acc = db.session.query(Article).join(User).filter(User.id == u_id).subquery()
     com_articles = db.session.query(acc, func.count(Comment.id).label('num')).join(Comment) \
         .group_by(Comment.article_id).order_by(func.count(Comment.id).desc()).limit(10).all()
-    return render_template('article.html', articles=[article], form=form, views_articles=views_articles,
-                           com_articles=com_articles, comments=comments, pagination=pagination)
+    user_articles = db.session.query(Article).join(User).filter(User.id==u_id).all()
+    tags = []
+    for art in user_articles:
+        for tag in art.tags.all():
+            if tag not in tags:
+                tags.append(tag)
+    return render_template('main/article.html', articles=[article], form=form,
+                           views_articles=views_articles, tags=tags,
+                           com_articles=com_articles, comments=comments,
+                           pagination=pagination)
 
 
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@main.route('/edit_about', methods=['GET', 'POST'])   # 编辑自我介绍
 @login_required
-def edit(id):  # 文章修改
-    article = Article.query.get_or_404(id)
-    if current_user != article.author and not current_user.can(Permission.ADMINISTER):
-        abort(403)
+@confirmed
+@permission_required(Permission.WRITE_ARTICLES)
+def edit_about():
+    article = Article.query.get_or_404(106)
     form = ArticleForm()
-    if form.validate_on_submit():
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
         article.title = form.title.data
         article.content = form.content.data
+        for tag in article.tags.all():
+            article.tags.remove(tag)
+        for tag in form.tags.data:
+            article.tags.append(tag)
         db.session.add(article)
         flash('文章已经更新！')
-        return redirect(url_for('.article', id=article.id))
+        return redirect(url_for('.about'))
     form.title.data = article.title
     form.content.data = article.content
-    return render_template('edit_article.html', form=form)
+    return render_template('main/edit_article.html', form=form)
+
+
+@main.route('/about', methods=['GET', 'POST'])
+def about():  # 关于我
+    article = Article.query.get_or_404(106)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(content=form.content.data,
+                          article=article,
+                          author=current_user._get_current_object())
+        db.session.add(comment)
+        flash('你的评论已经发表了')
+        return redirect(url_for('.about', page=-1))
+    page = request.args.get('page', 1, type=int)
+    if page == -1:
+        page = (article.comments.count() - 1) // \
+            current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+    pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
+        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+        error_out=False)
+    comments = pagination.items
+    return render_template('main/about_me.html', comments=comments, form=form,
+                           pagination=pagination, article=article)
 
 
 @main.route('/follow/<username>')  # 关注
@@ -229,7 +339,7 @@ def followers(username):
                                          error_out=False)
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user,
+    return render_template('main/followers.html', user=user,
                            endpoint='main.followers', pagination=pagination,
                            follows=follows)
 
@@ -246,7 +356,7 @@ def followed_by(username):
                                         error_out=False)
     follows = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user,
+    return render_template('main/followers.html', user=user,
                            endpoint='main.followed_by', pagination=pagination,
                            follows=follows)
 
@@ -262,7 +372,7 @@ def comment(username):
         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('private_comment.html', comments=comments, user=user,
+    return render_template('main/private_comment.html', comments=comments, user=user,
                            pagination=pagination, page=page, endpoint='main.comment')
 
 

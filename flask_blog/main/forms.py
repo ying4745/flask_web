@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, BooleanField, \
-    SelectField
+from wtforms import StringField, SubmitField, TextAreaField, widgets, \
+    SelectField, SelectMultipleField
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from wtforms import ValidationError
-from ..models import Role, User
+from ..models import Role, User, Tag, Category
 from flask_pagedown.fields import PageDownField
 
 
@@ -42,13 +43,40 @@ class EditProfiledAdminForm(FlaskForm):
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('用户名已经被使用')
 
+def get_tags():
+    return Tag.query.all()
 
 class ArticleForm(FlaskForm):
     title = StringField('标题', validators=[DataRequired(message='标题不能为空'), Length(1, 128)])
-    content = PageDownField('正文', validators=[DataRequired(message='正文不能为空')])
+    category = SelectField('分类', coerce=int)
+    tags = QuerySelectMultipleField('标签', query_factory=get_tags, get_label='name')
+    content = TextAreaField('正文', validators=[DataRequired(message='正文不能为空')])
     submit = SubmitField('发布')
 
+    def __init__(self, *args, **kwargs):
+        super(ArticleForm, self).__init__(*args, **kwargs)
+        self.tags.choices = [(tag.id, tag.name)
+                             for tag in Tag.query.order_by(Tag.name).all()]
+        self.category.choices = [(Category.id, Category.name) for Category in \
+                             Category.query.order_by(Category.name).all()]
 
 class CommentForm(FlaskForm):
-    content = PageDownField('', validators=[DataRequired(message='评论不能为空')])
+    content = TextAreaField('', validators=[DataRequired(message='评论不能为空')])
     submit = SubmitField('发布评论')
+
+
+class CKTextAreaWidget(widgets.TextArea):
+    """CKeditor form for Flask-Admin."""
+
+    def __call__(self, field, **kwargs):
+
+        # 为ckeditor 增加新的class
+        kwargs.setdefault('class_', 'ckeditor')
+        return super(CKTextAreaWidget, self).__call__(field, **kwargs)
+
+
+class CKTextAreaField(TextAreaField):
+    """创建一个新字段"""
+
+    # Add a new widget `CKTextAreaField` inherit from TextAreaField.
+    widget = CKTextAreaWidget()

@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "main/index.html" %}
 {% import "_macros.html" as macros %}
 
 {% block title %}{{ articles[0].title }}{% endblock %}
@@ -52,7 +52,7 @@
                 <p class="form_edit_error">{{ error }}</p>
             {% endfor %}
         {% endif %}
-        {{ form.content(class='comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
+        {{ form.content(class='ckeditor comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
         {{ form.submit(class='com_btn') }}
     </form>
 <!--    target="nm_iframe"  提交表单时 不刷新页面  在iframe中提交  将iframe隐藏
@@ -109,5 +109,5 @@ fragment='#comments', id=articles[0].id) }}
 
 {% block scripts %}
 {{ super() }}
-{{ pagedown.include_pagedown() }}
+<script src="//cdn.ckeditor.com/4.9.2/basic/ckeditor.js"></script>
 {% endblock %}

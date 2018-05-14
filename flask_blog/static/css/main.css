@@ -7,7 +7,6 @@
 }
 .article .article_title {
     text-align: center;
-    font-size: 22px;
     font-weight:bold;
     margin: 20px 0;
 }
@@ -31,15 +30,16 @@
 .article_content {
 	line-height: 24px;
 	font-size: 15px;
-	padding: 20px
+	overflow: auto;
+	margin: 20px;
 }
 .article_content p, .comment_content p {
-	margin-bottom: 10px;
+	margin-bottom: 6px;
 	text-indent: 2em
 }
 /* 文章评论 */
 .comments_form {
-    height: 140px;
+    height: 290px;
 }
 .comment_table {
     width:100%;
@@ -98,13 +98,14 @@ a .btn_blue:hover {
     position: relative;
 }
 .comment_title {
-    height: 32px;
+    height: 38px;
 }
 .comment_title li {
     float: left;
     margin: 0 5px;
-    line-height: 32px;
-    height: 32px;
+    line-height: 38px;
+    height: 38px;
+    overflow: hidden;
 }
 .comment_title .portrait {
     margin: 0px;
@@ -113,6 +114,7 @@ a .btn_blue:hover {
     padding: 5px 20px 0px 35px;
     line-height: 20px;
     font-size: 14px;
+    clear: both;
 }
 .comment_content i {
     color: #ef3030;
@@ -137,7 +139,6 @@ a .btn_blue:hover {
     font-size: 24px;
     letter-spacing: 4px;
 }
-
 .edit_post {
     width: 760px;
     margin: auto;
@@ -148,17 +149,21 @@ a .btn_blue:hover {
     font-size: 17px;
 }
 .title_table {
+    box-sizing: border-box;
     width:100%;
     height: 35px;
     background: #fbfbfb;
-    border-style: solid;
+    border: #dedede 2px solid;
+    border-radius: 5px;
+    outline: none
+}
+#tags+span span span {
+    border: #dedede 2px solid;
+    border-radius: 5px;
 }
 .article_table {
-    width:100%;
     height: 350px;
-    background: #fbfbfb;
     margin-bottom: 10px;
-    border-style: solid;
 }
 /* 用户资料 */
 .profile {
@@ -206,6 +211,22 @@ button {
 }
 .profile-edit a span{
     margin-top: 10px;
+}
+/* 关于我 */
+.about_me {
+    width: 800px;
+    margin: auto;
+    padding: 30px 100px;
+}
+.about_me h3 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+.about_me>.s_box:first-child {
+    padding: 50px 100px;
+}
+.about_me img {
+    margin: auto;
 }
 /* 关注者列表 */
 .follow-img {

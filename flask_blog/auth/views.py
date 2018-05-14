@@ -13,11 +13,11 @@ from ..models import User
 def before_request():
     if current_user.is_authenticated:  # 用户已登录
         current_user.ping()
-        if not current_user.confirmed \
-                and request.endpoint[:5] != 'auth.' \
-                and request.endpoint != 'static':
+        # if not current_user.confirmed \
+        #         and request.endpoint[:5] != 'auth.' \
+        #         and request.endpoint != 'static':
         # 用户还没确认，请求的端点不在‘auth.’，‘static’中
-            return redirect(url_for('auth.unconfirmed'))
+        #     return redirect(url_for('auth.unconfirmed'))
 
 @auth.route('/unconfirmed')  # 未确认页面
 def unconfirmed():
