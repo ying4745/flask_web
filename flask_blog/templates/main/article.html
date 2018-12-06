@@ -15,9 +15,11 @@
                  <a href="{{ url_for('main.tag', name=tag.name) }}">{{ tag.name }}</a>
             {% endfor %}
         </li>
-        <li class="f_r"><a href="{{ url_for('main.article', id=article.id) }}#comments"><i class="iconfont icon-pinglun1"></i>
-                ({{ article.comments.count() }})</a></li>
-        <li class="f_r"><i class="iconfont icon-browse"></i> ({{ article.views }})</li>
+        <li class="f_r"><a href="{{ url_for('main.article', id=article.id) }}#comments"><i class="iconfont icon-pinglun1">
+            </i> <span>({{ article.comments.count() }})</span></a></li>
+        <li class="f_r" articleid="{{ article.id }}"><a href="javascript:;" onclick="isArticleFavorite(this)">
+            <i class="iconfont {% if is_a_fav %}icon-dianzan{% else %}icon-dianzan1{% endif %}"></i> <span>({{ article.up_num }})</span></a></li>
+        <li class="f_r"><i class="iconfont icon-browse"></i> <span>({{ article.views }})</span></li>
     </ul>
     <div class="article_content">
         {% if article.content_html %}
@@ -44,7 +46,7 @@
 <h3 id="comments">评论</h3>
 {% if current_user.can(Permission.COMMENT) %}
 <div class="comments_form">
-    <form  role="form" method="post" >
+    <form id="comment_ajax_form">
         {{ form.hidden_tag() }}
         {{ form.content.label }}
         {% if form.content.errors %}
@@ -52,25 +54,29 @@
                 <p class="form_edit_error">{{ error }}</p>
             {% endfor %}
         {% endif %}
-        {{ form.content(class='ckeditor comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
-        {{ form.submit(class='com_btn') }}
+        {{ form.content(class='comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
+        <input type="text" style="display:none" name="article_id" value="{{ articles[0].id }}">
+        <input type="reset" id="input_res" style="display:none">
+        {{ form.submit(class='com_btn', id='form_sub') }}
     </form>
-<!--    target="nm_iframe"  提交表单时 不刷新页面  在iframe中提交  将iframe隐藏
-    <iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>-->
 </div>
 {% endif %}
 </div>
 
-{% if comments %}
-{% include 'module/_comments.html' %}
-{% endif %}
+{#{% if comments %}#}
+{#{% include 'module/_comments.html' %}#}
+{#{% endif %}#}
+
+<div id="comment_box" class="s_box" a_id="{{ articles[0].id }}"></div>
+
 
 {% endblock %}
+
 {% block subfield %}
     <div class="tit01 s_box">
         <dl class="tit-author clearfix">
             <dt>
-            <a href="{{ url_for('main.user', username=articles[0].author.username) }}" target="_blank">
+            <a href="{{ url_for('main.user', username=articles[0].author.username) }}">
                 <img class="portrait" src="{{ articles[0].author.gravatar(size=60) }}"></a>
             </dt>
             <dd>
@@ -100,14 +106,16 @@
     {{ super() }}
 {% endblock %}
 
-{% block pagination %}
-{% if pagination %}
-{{ macros.pagination_widget(pagination, '.article',
-fragment='#comments', id=articles[0].id) }}
-{% endif %}
-{% endblock %}
+{#评论分页功能#}
+{#{% block pagination %}#}
+{#{% if pagination %}#}
+{#{{ macros.pagination_widget(pagination, '.article',#}
+{#fragment='#comments', id=articles[0].id) }}#}
+{#{% endif %}#}
+{#{% endblock %}#}
 
 {% block scripts %}
-{{ super() }}
-<script src="//cdn.ckeditor.com/4.9.2/basic/ckeditor.js"></script>
+    {{ super() }}
+
+    <script type=text/javascript src="{{ url_for('static', filename='js/article.js') }}"></script>
 {% endblock %}

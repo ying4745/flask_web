@@ -25,6 +25,13 @@ h1, h2, h3, h4, h5, h6 {
 a {
 	outline: none;
 }
+textarea{
+	/* 去掉右下角默认的可拖动图标 */
+	resize:none;
+	outline:none;
+	border-style: solid;
+}
+
 /* 当一个div里只有浮动元素时，高度会重叠，在下面添加一个空内容的块 清除浮动 */
 .clearfix:after {
     content:"";
@@ -207,24 +214,10 @@ nav {
 	background: url(../images/menubg.png);
 	z-index: 300;
 }
-.menu li ul {
-	display: none;
-	width: 110px;
-	position: absolute;
-	TOP: 40px;
-	left: 0;
+.menu li a.menu_active {
+	color: #8d0804;
 }
-.menu li ul li {
-	font-size: 12px;
-	height: 28px;
-	line-height: 28px
-}
-.menu li ul li a {
-	font-size: 14px
-}
-.menu li ul li a:hover {
-	background: #000
-}
+
 /*主体内容框架*/
 .container {
     padding-top: 10px;

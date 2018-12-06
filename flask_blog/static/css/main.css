@@ -18,7 +18,7 @@
 }
 .article_date li{
     float: left;
-    margin-left: 15px;
+    margin-left: 10px;
 }
 .article_date li i{
     font-size: 13px;
@@ -31,18 +31,38 @@
 	line-height: 24px;
 	font-size: 15px;
 	overflow: auto;
-	margin: 20px;
+	margin: 10px;
 }
+
+.article_content h1,h2,h3,h4,p,span{
+    margin: 10px 0 ;
+}
+.article_content blockquote {
+    border-radius: 5px;
+    background-color: #e6e6e6;
+    margin: 10px 0 10px 20px;
+    padding: 5px;
+}
+.article_content blockquote p {
+    margin-left: 0;
+}
+.article_content p img {
+    margin-left: 5px;
+}
+.article_content div {
+    margin-left: 20px;
+}
+
 .article_content p, .comment_content p {
-	margin-bottom: 6px;
-	text-indent: 2em
+    margin-left: 20px;
+	text-indent: 1em
 }
 /* 文章评论 */
 .comments_form {
-    height: 290px;
+    overflow: hidden;
 }
 .comment_table {
-    width:100%;
+    width: 680px;
     height: 80px;
     background: #fbfbfb;
     border-style: solid;
@@ -52,10 +72,11 @@
     display: block;
     color: #666;
     margin: 10px 20px 0 0;
-    padding: 6px 15px;
+    padding: 2px 15px;
     background: #e5e5e5;
     border: #aaa 1px solid;
     border-radius: 4px;
+    font-size: 14px;
 }
 .com_btn:hover {
     border: #111 1px solid;
@@ -64,66 +85,100 @@
 a .btn_red {
     float: right;
     display: block;
-    color: #de686d;
+    color: #3c3c3c;
     margin: 3px 20px 0 0;
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: #de686d 1px solid;
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: #3c3c3c 1px solid;
+    font-size: 13px;
 }
 a .btn_red:hover {
     color: #fff;
-    background: #de686d;
-    border: #de686d 1px solid;
+    background: #3c3c3c;
+    border: #3c3c3c 1px solid;
 }
 a .btn_blue{
     float: right;
     display: block;
     margin: 3px 20px 0 0;
-    padding: 4px 8px;
-    border-radius: 4px;
-    color: #3e6bd8;
-    border: #3e6bd8 1px solid;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #787878;
+    border: #787878 1px solid;
+    font-size: 13px;
 }
 a .btn_blue:hover {
     color: #fff;
-    background: #3e6bd8;
-    border: #3e6bd8 1px solid;
+    background: #787878;
+    border: #787878 1px solid;
 }
-.comments {
-    padding: 15px 20px 20px;
+.comment_item {
+    margin: 10px 0 10px 35px;
 }
-.comment {
-    padding: 10px 5px 30px 5px;
-    border-bottom: 1px dashed #bbb;
-    position: relative;
+#comment_box .max_content>div {
+    margin: 12px;
 }
-.comment_title {
-    height: 38px;
-}
+
 .comment_title li {
     float: left;
-    margin: 0 5px;
-    line-height: 38px;
-    height: 38px;
-    overflow: hidden;
+    margin-right: 10px;
+    line-height: 26px;
+    height: 26px;
+    color: #2f2f2fb3;
 }
-.comment_title .portrait {
+.comment_title li a {
+    color: #2f2f2fb3;
+}
+.comment_title li a:hover{
+    color: #474747;
+}
+.comment_title li.f_r {
+    float: right;
+    margin-right: 20px;
+    font-size: 14px;
+}
+.comment_title li img {
     margin: 0px;
 }
 .comment_content {
-    padding: 5px 20px 0px 35px;
-    line-height: 20px;
-    font-size: 14px;
+    padding: 10px 20px 5px 35px;
+    line-height: 26px;
+    font-size: 16px;
     clear: both;
-}
-.comment_content i {
-    color: #ef3030;
+    border-bottom: 1px dashed #bbbbbb;
+
 }
 .moderate {
     position: absolute;
     right: 10px;
     bottom: 5px;
 }
+/* 评论下的评论框 */
+.reply_textarea {
+    margin-top: 5px;
+    overflow: hidden;
+}
+.com_text {
+    width: 99%;
+}
+
+/* 回复 点赞图标微调 */
+.huifu {
+    line-height: 28px;
+}
+/* 评论折叠 */
+.max_content {
+    max-height: 170px;
+    overflow: hidden;
+    transition: max-height .25s;
+    clear: both;
+}
+.expand_btn {
+    margin: 5px 20px 0 0;
+    padding: 1px 10px;
+    font-size: 12px;
+}
+
 /* 评论编辑错误提示 */
 .form_edit_error {
     color: #ff0a0ab3;
@@ -155,7 +210,8 @@ a .btn_blue:hover {
     background: #fbfbfb;
     border: #dedede 2px solid;
     border-radius: 5px;
-    outline: none
+    outline: none;
+    font-size: 16px;
 }
 #tags+span span span {
     border: #dedede 2px solid;
@@ -186,13 +242,13 @@ a .btn_blue:hover {
 }
 .btn_follow_blue {
     margin: 5px 20px 0 0;
-    padding: 3px 8px;
+    padding: 2px 8px;
     cursor: pointer;
     border-style: none;
-    border-radius: 7px;
+    border-radius: 5px;
     background: #3e6bd8;
     color: #fff;
-    font-size: 15px;
+    font-size: 12px;
     text-decoration: none;
 }
 button {
@@ -205,9 +261,10 @@ button {
 .btn_follow_green {
     margin: 5px 20px 0 0;
     padding: 4px 8px;
-    background: #11ae34;
+    background: #9f9f9f;
     color: #fff;
     border-radius: 4px;
+    font-size: 12px;
 }
 .profile-edit a span{
     margin-top: 10px;
@@ -245,7 +302,7 @@ button {
 .follow-item h2 {
     font-size: 18px;
     font-weight: 600;
-    margin-top: -6px;
+    margin-top: -3px;
 }
 .follow-about {
     margin-top: 4px;

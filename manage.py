@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 
 import os
+
+
 COV = None
 if os.environ.get('FLASK_COVERAGE'):  # 存在环境变量'FLASK_COVERAGE'则执行
     import coverage
@@ -10,11 +12,13 @@ if os.environ.get('FLASK_COVERAGE'):  # 存在环境变量'FLASK_COVERAGE'则执
     # include 选项用来限制程序包中文件的分析范围，不指定会包含虚拟环境等其他一下杂项的检查
     COV.start()
 
+from flask_script import Manager, Shell  # 命令行选项
+from flask_migrate import Migrate, MigrateCommand  #
+
 from flask_blog import create_app, db
 from flask_blog.models import User,Article, Role, Permission, \
     Follow, Comment, Tag, Category
-from flask_script import Manager, Shell  # 命令行选项
-from flask_migrate import Migrate, MigrateCommand  # 数据迁移
+from flask_blog.auth.forms import RegistrationForm
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -53,6 +57,26 @@ def test(coverage=False):
         COV.html_report(directory=covdir)
         print('HTML version: file: //%s/index.html' % covdir)
         COV.erase()
+
+# 创建管理员账户
+@manager.command
+def createsuperuser():
+    username = input('请输入用户名：')
+    email = input('请输入电子邮箱：')
+    password = input('请输入密码：')
+    password2 = input('再次输入密码：')
+    form = RegistrationForm(username=username, email=email, password=password, password2=password2, csrf_enabled=False)
+    if not form.validate():
+        if 'csrf_token' in form.errors.keys() and len(form.errors) == 1:
+            user = User(email=email, username=username, password=password)
+            user.role = Role.query.filter_by(permissions=0xff).first()
+            db.session.add(user)
+            db.session.commit()
+            print('创建管理账号成功')
+        else:
+            print(form.errors)
+    else:
+        print('创建不成功')
 
 if __name__ == '__main__':
     manager.run()

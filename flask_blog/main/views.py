@@ -1,10 +1,11 @@
 from flask import render_template, flash, url_for, redirect, request, abort, \
-    make_response, current_app
+    make_response, current_app, jsonify
 from . import main
 from .forms import EditProfiledAdminForm, ArticleForm, CommentForm, UserForm
 from flask_login import login_required, current_user
 from ..decorators import admin_required
-from ..models import User, Role, Permission, Article, Comment, Follow, Tag, Category
+from ..models import User, Role, Permission, Article, Comment, Follow, Tag, \
+    Category, UserFavorite
 from flask_blog import db
 from ..decorators import permission_required
 from sqlalchemy import func
@@ -240,23 +241,31 @@ def article(id):  # 单独显示文章
     article = Article.query.get_or_404(id)
     article.increase_views()
     form = CommentForm()
-    if form.validate_on_submit():
-        comment = Comment(content=form.content.data,
-                          article=article,
-                          author=current_user._get_current_object())
-        db.session.add(comment)
-        flash('你的评论已经发表了')
-        return redirect(url_for('.article', id=article.id, page=-1))
-    page = request.args.get('page', 1, type=int)
-    if page == -1:
-        # 计算最后一页，-1是减去刚发的评论，如果总评论是39，每页20，如果不减40/20+1=3
-        # 而实际上是第二页的最后一条
-        page = (article.comments.count() - 1) // \
-            current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
-    pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
-        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-        error_out=False)
-    comments = pagination.items
+
+    is_a_fav = False
+    try:
+        user_id = current_user._get_current_object().id
+    except:
+        pass
+    if user_id:
+        is_fav = UserFavorite.query.filter_by(user_id=user_id,
+                                              fav_id=article.id,
+                                              fav_type='article').first()
+        if is_fav:
+            is_a_fav = True
+
+    # page = request.args.get('page', 1, type=int)
+    # if page == -1:
+    #     # 计算最后一页，-1是减去刚发的评论，如果总评论是39，每页20，如果不减40/20+1=3
+    #     # 而实际上是第二页的最后一条
+    #     page = (article.comments.count() - 1) // \
+    #         current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+    # pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
+    #     page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+    #     error_out=False)
+
+    # 多级评论  数据处理
+
     u_id = article.author_id
     views_articles = db.session.query(Article).join(User).filter(User.id==u_id)\
         .order_by(Article.views.desc()).limit(10).all()
@@ -271,54 +280,181 @@ def article(id):  # 单独显示文章
                 tags.append(tag)
     return render_template('main/article.html', articles=[article], form=form,
                            views_articles=views_articles, tags=tags,
-                           com_articles=com_articles, comments=comments,
-                           pagination=pagination)
+                           com_articles=com_articles, is_a_fav=is_a_fav)
 
 
-@main.route('/edit_about', methods=['GET', 'POST'])   # 编辑自我介绍
-@login_required
-@confirmed
-@permission_required(Permission.WRITE_ARTICLES)
-def edit_about():
-    article = Article.query.get_or_404(106)
-    form = ArticleForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        article.title = form.title.data
-        article.content = form.content.data
-        for tag in article.tags.all():
-            article.tags.remove(tag)
-        for tag in form.tags.data:
-            article.tags.append(tag)
-        db.session.add(article)
-        flash('文章已经更新！')
-        return redirect(url_for('.about'))
-    form.title.data = article.title
-    form.content.data = article.content
-    return render_template('main/edit_article.html', form=form)
-
-
-@main.route('/about', methods=['GET', 'POST'])
-def about():  # 关于我
-    article = Article.query.get_or_404(106)
+@main.route('/article/comment', methods=['POST'])
+def sub_comment():  # 提交评论
+    article_id = request.form.get('article_id', None)
+    if not current_user.is_authenticated:
+        return jsonify(errno='3',errmsg='请先登陆')
+    article = Article.query.get_or_404(article_id)
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(content=form.content.data,
                           article=article,
                           author=current_user._get_current_object())
         db.session.add(comment)
-        flash('你的评论已经发表了')
-        return redirect(url_for('.about', page=-1))
-    page = request.args.get('page', 1, type=int)
-    if page == -1:
-        page = (article.comments.count() - 1) // \
-            current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
-    pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
-        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-        error_out=False)
-    comments = pagination.items
-    return render_template('main/about_me.html', comments=comments, form=form,
-                           pagination=pagination, article=article)
+        return jsonify(errno='0', errmsg='ok')
+    return jsonify(errno='4', errmsg='评论失败')
+
+
+@main.route('/article/add/comment', methods=['POST'])
+def add_comment():  # 评论子评论
+    article_id = request.form.get('article_id', None)
+    parent_id = request.form.get('com_id', None)
+    if not current_user.is_authenticated:
+        return jsonify(errno='3',errmsg='用户未登陆')
+    if not parent_id:
+        return jsonify(errno='4',errmsg='评论出错')
+    content = request.form.get('com_content', None)
+    if not content:
+        return jsonify(errno='5', errmsg='评论不能为空！')
+    article = Article.query.get_or_404(article_id)
+
+    comment = Comment(content=content,
+                      article=article,
+                      author=current_user._get_current_object(),
+                      parent_id=parent_id)
+    db.session.add(comment)
+    return jsonify(errno='0', errmsg='ok')
+
+
+@main.route('/article/<int:article_id>/comments')
+def comments(article_id):  # 加载评论
+    article = Article.query.get_or_404(article_id)
+    comment_lists = article.comments.order_by(Comment.id.asc()).all()
+    if not comment_lists:
+        return jsonify(errno='5', errmsg='无数据')
+    com_lists = []
+    for a in comment_lists:
+        com_lists.append(a.to_dict())
+
+    # 获取登陆用户的ID，如果没有就为None
+    if current_user.is_authenticated:
+        user_id = current_user._get_current_object().id
+    else:
+        user_id = None
+
+    # 为评论增加属性，表示该用户对该评论的点赞行为
+    for com in com_lists:
+        if user_id:
+            is_fav = UserFavorite.query.filter_by(user_id=user_id,
+                                                  fav_id=com['id'],
+                                                  fav_type='comment').first()
+            if is_fav:
+                com['isFav'] = 'icon-dianzan'
+            else:
+                com['isFav'] = 'icon-dianzan1'
+        else:
+            com['isFav'] = 'icon-dianzan1'
+
+
+    comments = []
+    from collections import OrderedDict  # 有序字典 按字典的插入顺序排列
+    comment_dict = OrderedDict()
+    for comment in com_lists:
+        comment_dict[comment['id']] = comment
+
+    for item in com_lists:
+        parent_comment = comment_dict.get(item['parent_id'])
+        if parent_comment:
+            parent_comment['children'].append(item)  # 列表中添加子级评论
+        else:
+            comments.append(item)
+
+    return jsonify(errno='0', errmsg='ok', data=comments)
+
+
+@main.route('/add/favorite', methods=['POST'])
+def addfavorite():  # 点赞
+    fav_id = request.form.get('fav_id')
+    fav_type = request.form.get('fav_type')
+    if not current_user.is_authenticated:
+        return jsonify(errno='3',errmsg='用户未登陆')
+    user_id = current_user._get_current_object().id
+    is_fav = UserFavorite.query.filter_by(user_id=user_id,
+                                          fav_id=int(fav_id),
+                                          fav_type=fav_type).first()
+    if is_fav:
+        #  用户记录存在，表示取消点赞
+        db.session.delete(is_fav)
+        if fav_type == 'comment':
+            comment = Comment.query.get_or_404(int(fav_id))
+            comment.up_num -= 1
+            if comment.up_num < 0:
+                comment.up_num = 0
+            data = comment.up_num
+        elif fav_type == 'article':
+            article = Article.query.get_or_404(int(fav_id))
+            article.up_num -= 1
+            if article.up_num < 0:
+                article.up_num = 0
+            data = article.up_num
+        return jsonify(errno='0', errmsg='取消点赞', data=data)
+    else:
+        if int(fav_id) > 0:
+            userfavorite = UserFavorite(user_id=user_id,
+                                        fav_id=int(fav_id),
+                                        fav_type=fav_type)
+            db.session.add(userfavorite)
+            if fav_type == 'comment':
+                comment = Comment.query.get_or_404(int(fav_id))
+                comment.up_num += 1
+                data = comment.up_num
+            elif fav_type == 'article':
+                article = Article.query.get_or_404(int(fav_id))
+                article.up_num += 1
+                data = article.up_num
+            return jsonify(errno='0', errmsg='点赞', data=data)
+        else:
+            return jsonify(errno='4', errmsg='数据错误')
+
+
+# @main.route('/edit_about', methods=['GET', 'POST'])   # 编辑自我介绍
+# @login_required
+# @confirmed
+# @permission_required(Permission.WRITE_ARTICLES)
+# def edit_about():
+#     article = Article.query.get_or_404(106)
+#     form = ArticleForm()
+#     if current_user.can(Permission.WRITE_ARTICLES) and \
+#             form.validate_on_submit():
+#         article.title = form.title.data
+#         article.content = form.content.data
+#         for tag in article.tags.all():
+#             article.tags.remove(tag)
+#         for tag in form.tags.data:
+#             article.tags.append(tag)
+#         db.session.add(article)
+#         flash('文章已经更新！')
+#         return redirect(url_for('.about'))
+#     form.title.data = article.title
+#     form.content.data = article.content
+#     return render_template('main/edit_article.html', form=form)
+
+
+# @main.route('/about', methods=['GET', 'POST'])
+# def about():  # 关于我
+#     article = Article.query.get_or_404(106)
+#     form = CommentForm()
+#     if form.validate_on_submit():
+#         comment = Comment(content=form.content.data,
+#                           article=article,
+#                           author=current_user._get_current_object())
+#         db.session.add(comment)
+#         flash('你的评论已经发表了')
+#         return redirect(url_for('.about', page=-1))
+#     page = request.args.get('page', 1, type=int)
+#     if page == -1:
+#         page = (article.comments.count() - 1) // \
+#             current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+#     pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
+#         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+#         error_out=False)
+#     comments = pagination.items
+#     return render_template('main/about_me.html', comments=comments, form=form,
+#                            pagination=pagination, article=article)
 
 
 @main.route('/follow/<username>')  # 关注
@@ -402,7 +538,7 @@ def comment(username):
                            pagination=pagination, page=page, endpoint='main.comment')
 
 
-@main.route('/moderate')  # 加载管理评论页面
+@main.route('/moderate')  # 加载管理评论页面 暂时还没用上
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderate():

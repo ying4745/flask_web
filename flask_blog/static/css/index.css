@@ -138,9 +138,9 @@ a.readmore {
     margin: 5px 0;
 }
 .label_box li a {
-      	-moz-border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
-      	-webkit-border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
-        border-radius: 80px 30px 30px 20px / 20px 25px 10px 10px;
+      	-moz-border-radius: 40px 30px 30px 20px / 20px 25px 10px 10px;
+      	-webkit-border-radius: 40px 30px 30px 20px / 20px 25px 10px 10px;
+        border-radius: 40px 25px 20px 15px / 20px 20px 10px 10px;
       	background: #394748;
       	-moz-box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* Firefox */
       	-webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.2); /* Safari, Chrome */

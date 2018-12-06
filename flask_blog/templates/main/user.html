@@ -34,7 +34,7 @@
     <div class="profile-edit">
     {% if current_user.is_administrator() %}
     <a href="{{ url_for('main.edit_profile_admin',id=user.id) }}">
-        <span class="btn_red" >修改 [管理员</span></a>
+        <span class="btn_red" >修改 [管理员]</span></a>
     {% endif %}
     {% if user == current_user %}
     <a href="{{ url_for('main.edit_profile',username=user.username) }}">

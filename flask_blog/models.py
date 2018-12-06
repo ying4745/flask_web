@@ -4,7 +4,7 @@ from flask import current_app, request
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import login_manager
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+import datetime
 from markdown import markdown
 import bleach
 import hashlib
@@ -59,7 +59,7 @@ class Follow(db.Model):
     __tablename__ = 'follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 class User(db.Model, UserMixin):
@@ -73,8 +73,8 @@ class User(db.Model, UserMixin):
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     confirmed = db.Column(db.Boolean, default=False)  # 账户状态确认
-    member_since = db.Column(db.DateTime(), default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    member_since = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+    last_seen = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     articles = db.relationship('Article', backref='author', lazy='dynamic')
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
@@ -122,16 +122,13 @@ class User(db.Model, UserMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if self.role is None:
-            if self.email == current_app.config['FLASKY_ADMIN']:
-                self.role = Role.query.filter_by(permissions=0xff).first()
-            if self.role is None:
-                self.role = Role.query.filter_by(default=True).first()
+            self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         self.followed.append(Follow(followed=self))
 
     def ping(self):
-        self.last_seen = datetime.utcnow()
+        self.last_seen = datetime.datetime.utcnow()
         db.session.add(self)
 
     @property  # 把方法变成属性调用
@@ -311,8 +308,9 @@ class Article(db.Model):
     content = db.Column(db.Text)
     content_html = db.Column(db.Text)
     summary = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    views = db.Column(db.Integer, default=int(0))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
+    views = db.Column(db.Integer, default=int(0))  # 浏览量
+    up_num = db.Column(db.Integer, default=int(0))  # 点赞数
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     categorys_id = db.Column(db.Integer, db.ForeignKey('categorys.id'))
     comments = db.relationship('Comment', backref='article', lazy='dynamic')
@@ -357,13 +355,13 @@ class Article(db.Model):
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'table', 'tr', 'td', 'tbody',
-                        'h1', 'h2', 'h3', 'p', 'img']
+                        'h1', 'h2', 'h3', 'p', 'img', 'div']
         attrs = {
             '*': ['class', 'style'],
             'a': ['href', 'rel'],
             'img': ['alt', 'src'],
         }
-        styles = ['height', 'width']
+        styles = ['height', 'width', 'background', 'border', 'padding']
         target.content_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, attributes=attrs, styles=styles, strip=True))
@@ -387,10 +385,29 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text)
     content_html = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
     disabled = db.Column(db.Boolean)  # 布尔值 查禁不当的评论
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=True)  # 父级评论ID
+    up_num = db.Column(db.Integer, default=0)  # 点赞数
+
+    def utc_to_local(self):
+        return self.timestamp + datetime.timedelta(hours=8)
+
+    def to_dict(self):
+        comment_dict ={
+            'id': self.id,
+            'author_img': self.author.gravatar(size=24),
+            'content_html': self.content_html,
+            'timestamp': self.utc_to_local().strftime('%Y-%m-%d %H:%M:%S'),
+            'author': self.author.username,
+            'article_id': self.article_id,
+            'parent_id': self.parent_id,
+            'up_num': self.up_num,
+            'children': []
+        }
+        return comment_dict
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
@@ -401,3 +418,12 @@ class Comment(db.Model):
 
 
 db.event.listen(Comment.content, 'set', Comment.on_changed_content)
+
+
+class UserFavorite(db.Model):
+    __tablename__ = 'userfavorite'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    fav_id = db.Column(db.Integer, default=0)
+    fav_type = db.Column(db.Enum('article', 'comment'), default='comment')
+    add_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)

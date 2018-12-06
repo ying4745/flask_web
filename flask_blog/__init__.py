@@ -20,7 +20,8 @@ flask_admin.add_view(admin.CustomView(name='返回网站'))
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
-    config[config_name].init_app(app)  # 调用 init_app() 可以完成初始化过程
+    app.config.from_object('setting')
+    # config[config_name].init_app(app)  # 调用 init_app() 可以完成初始化过程
 
     db.init_app(app)
     moment.init_app(app)
