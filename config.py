@@ -11,8 +11,8 @@ class Config:
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
-    MAIL_USERNAME = 'yanwei4682@qq.com'
-    MAIL_PASSWORD = 'bkxhfkyzmcgrbjfh'
+    MAIL_USERNAME = '***'
+    MAIL_PASSWORD = '***'
 
     # @staticmethod
     # def init_app(app):
