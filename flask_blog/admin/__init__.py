@@ -32,6 +32,8 @@ class UserView(ModelView):
         'last_seen': '最后一次登录',
         'role': '角色'
     }
+    # 使用搜索框
+    column_searchable_list = ('username', 'name')
     # 隐藏字段不显示
     column_exclude_list = ['avatar_hash', 'password_hash']
     #  表单显示字段列集合
@@ -103,6 +105,7 @@ class CommentView(ModelView):
         'timestamp': '评论时间',
         'disabled': '是否屏蔽',
         'author': '评论者',
+        'up_num': '点赞数',
         'article': '评论文章'
     }
     # 隐藏字段不显示

@@ -327,11 +327,12 @@ class Article(db.Model):
         seed()
         user_count = User.query.count()
         tag_count = Tag.query.count()
+        category_count = Category.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             a = Article(title=forgery_py.lorem_ipsum.title(randint(1, 10)),
                         content=forgery_py.lorem_ipsum.paragraphs(randint(10, 20)),
-                        timestamp=forgery_py.date.datetime(True),
+                        timestamp=forgery_py.date.date(True),
                         author=u)
             allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                             'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
@@ -345,6 +346,8 @@ class Article(db.Model):
             for j in range(tag_num):
                 t = Tag.query.offset(randint(0, tag_count - 1)).first()
                 a.tags.append(t)
+            c = Category.query.offset(randint(0, category_count - 1)).first()
+            a.category = c
             db.session.add(a)
             db.session.commit()
 

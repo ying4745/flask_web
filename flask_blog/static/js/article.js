@@ -136,7 +136,7 @@ function expand_com(obj) {
         show_con.text('收起评论');
     }
 };
-
+// 点赞
 function add_favorite(current_elem, fav_id, fav_type) {
     var params = {'fav_id':fav_id, 'fav_type':fav_type};
     var url = "/add/favorite";

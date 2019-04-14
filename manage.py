@@ -65,7 +65,7 @@ def createsuperuser():
     email = input('请输入电子邮箱：')
     password = input('请输入密码：')
     password2 = input('再次输入密码：')
-    form = RegistrationForm(username=username, email=email, password=password, password2=password2, csrf_enabled=False)
+    form = RegistrationForm(username=username, email=email, password=password, password2=password2)
     if not form.validate():
         if 'csrf_token' in form.errors.keys() and len(form.errors) == 1:
             user = User(email=email, username=username, password=password)

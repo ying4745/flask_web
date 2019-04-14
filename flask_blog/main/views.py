@@ -246,7 +246,7 @@ def article(id):  # 单独显示文章
     try:
         user_id = current_user._get_current_object().id
     except:
-        pass
+        user_id = None
     if user_id:
         is_fav = UserFavorite.query.filter_by(user_id=user_id,
                                               fav_id=article.id,
