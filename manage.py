@@ -4,13 +4,13 @@
 import os
 
 
-COV = None
-if os.environ.get('FLASK_COVERAGE'):  # 存在环境变量'FLASK_COVERAGE'则执行
-    import coverage
-    COV = coverage.coverage(branch=True, include='flask_blog/*')
+# COV = None
+# if os.environ.get('FLASK_COVERAGE'):  # 存在环境变量'FLASK_COVERAGE'则执行
+#     import coverage
+#     COV = coverage.coverage(branch=True, include='flask_blog/*')
     # branch=True选项开启分支覆盖分析，检查每个条件语句的 True 分支和 False 分支是否都执测试行了
     # include 选项用来限制程序包中文件的分析范围，不指定会包含虚拟环境等其他一下杂项的检查
-    COV.start()
+    # COV.start()
 
 from flask_script import Manager, Shell  # 命令行选项
 from flask_migrate import Migrate, MigrateCommand  #
@@ -20,9 +20,11 @@ from flask_blog.models import User,Article, Role, Permission, \
     Follow, Comment, Tag, Category
 from flask_blog.auth.forms import RegistrationForm
 
+
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+
 
 # 做些配置，让 Flask-Script 的 shell 命令自动导入特定的对象
 # make_shell_context() 函数注册了程序、数据库实例以及模型，因此这些对象能直接导入 shell

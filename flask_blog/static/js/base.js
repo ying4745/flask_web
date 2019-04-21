@@ -103,11 +103,12 @@ function follow(username,id) {
 
 // 屏蔽与解禁评论
 function com_disa(id) {
-    var btn_this = $('#'+id);
+    var btn_this = $('#com_'+id);
     if (!btn_this.hasClass('btn_follow_red')) {
         $.get('/moderate/enable/'+id, function(data,status) {
-            if (status=='success') {
+            if (status==='success') {
                 btn_this.text('屏蔽').addClass('btn_follow_red');
+                btn_this.parent().prev().remove();
             } else {
                 btn_this.text('异常');
             }
@@ -115,8 +116,9 @@ function com_disa(id) {
     }
     else {
         $.get('/moderate/disable/'+id, function(data,status) {
-            if (status=='success') {
+            if (status==='success') {
                 btn_this.text('解禁').removeClass('btn_follow_red');
+                btn_this.parent().before('<p><i style="color: red;">此评论已被屏蔽</i></p>');
             } else {
                 btn_this.text('异常');
             }

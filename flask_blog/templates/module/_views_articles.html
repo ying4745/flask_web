@@ -1,7 +1,7 @@
 {% for article in views_articles %}
 <ul class="rank">
     <li>
-        <a href="{{ url_for('main.article', id=article.id) }}" target="_blank">
+        <a href="{{ url_for('main.article', id=article.id) }}">
             {{ article.title }}</a>
     </li>
     <li class="ph">

@@ -1,14 +1,15 @@
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, AnonymousUserMixin
-from flask import current_app, request
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from . import login_manager
-from flask_sqlalchemy import SQLAlchemy
 import datetime
-from markdown import markdown
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from werkzeug.security import generate_password_hash, check_password_hash
+
 import bleach
-import hashlib
+from markdown import markdown
+from flask import current_app, request
+from flask_sqlalchemy import SQLAlchemy
 from jieba.analyse.analyzer import ChineseAnalyzer
+from flask_login import UserMixin, AnonymousUserMixin
+
+from flask_blog import login_manager, avatar
 
 
 db = SQLAlchemy()
@@ -66,7 +67,7 @@ class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
-    avatar_hash = db.Column(db.String(32))
+    avatar_img = db.Column(db.String(64), default='default.jpeg')
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     name = db.Column(db.String(64))
@@ -123,8 +124,6 @@ class User(db.Model, UserMixin):
         super().__init__(**kwargs)
         if self.role is None:
             self.role = Role.query.filter_by(default=True).first()
-        if self.email is not None and self.avatar_hash is None:
-            self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         self.followed.append(Follow(followed=self))
 
     def ping(self):
@@ -138,6 +137,10 @@ class User(db.Model, UserMixin):
     @password.setter  # 写入密码的散列值
     def password(self, password):
         self.password_hash = generate_password_hash(password)
+
+    @property
+    def avatar_url(self): # 头像url
+        return avatar.url(self.avatar_img) if self.avatar_img else None
 
     def verify_password(self, password):  # 检查用户输入的密码，对就返回True
         return check_password_hash(self.password_hash, password)
@@ -205,14 +208,14 @@ class User(db.Model, UserMixin):
     def is_administrator(self):  # 检查管理员权限经常用，所以单独定制方法
         return self.can(Permission.ADMINISTER)
 
-    def gravatar(self, size=100, default='identicon', rating='g'):  # 生成 Gravatar头像 URL
-        if request.is_secure:  # 判断request是否为https
-            url = 'https://secure.gravatar.com/avatar'
-        else:
-            url = 'http://www.gravatar.com/avatar'
-        hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
-        return "{url}/{hash}?s={size}&d={default}&r={rating}" \
-            .format(url=url, hash=hash, size=size, default=default, rating=rating)
+    # def gravatar(self, size=100, default='identicon', rating='g'):  # 生成 Gravatar头像 URL
+    #     if request.is_secure:  # 判断request是否为https
+    #         url = 'https://secure.gravatar.com/avatar'
+    #     else:
+    #         url = 'http://www.gravatar.com/avatar'
+    #     hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
+    #     return "{url}/{hash}?s={size}&d={default}&r={rating}" \
+    #         .format(url=url, hash=hash, size=size, default=default, rating=rating)
 
     def follow(self, user):  # 关注
         if not self.is_following(user):
@@ -252,10 +255,8 @@ class AnonymousUser(AnonymousUserMixin):  # 出于一致性考虑，未登录时
         return False
 
 
-login_manager.anonymous_user = AnonymousUser
-
-
 # 设置未登录状态的current_user为AnonymousUser类
+login_manager.anonymous_user = AnonymousUser
 
 
 class Category(db.Model):
@@ -276,8 +277,7 @@ article_tag_table = db.Table('article_tag_table',
 class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32), unique=True, index=True,
-                     nullable=False)
+    name = db.Column(db.String(32), unique=True, index=True, nullable=False)
 
     @staticmethod
     def generate_fake(count=30):
@@ -378,8 +378,10 @@ class Article(db.Model):
         return '<Article %r>' % self.title
 
 
-# on_changed_body 函数注册在 content 字段上，是 SQLAlchemy“set”事件的监听程序，这意
-# 味着只要这个类实例的 content 字段设了新值，函数就会自动被调用
+"""
+    on_changed_body 函数注册在 content 字段上，是 SQLAlchemy“set”事件的监听程序，这意
+味着只要这个类实例的 content 字段设了新值，函数就会自动被调用
+"""
 db.event.listen(Article.content, 'set', Article.on_changed_content)
 
 
@@ -398,16 +400,24 @@ class Comment(db.Model):
     def utc_to_local(self):
         return self.timestamp + datetime.timedelta(hours=8)
 
+    @property
+    def get_parent_comment_author(self):
+        if self.parent_id:
+            parent_com = Comment.query.get(self.parent_id)
+            return parent_com.author.username
+        return None
+
     def to_dict(self):
         comment_dict ={
             'id': self.id,
-            'author_img': self.author.gravatar(size=24),
+            'author_img': self.author.avatar_url,
             'content_html': self.content_html,
-            'timestamp': self.utc_to_local().strftime('%Y-%m-%d %H:%M:%S'),
+            'timestamp': self.utc_to_local().strftime('%Y/%m/%d %H:%M:%S'),
             'author': self.author.username,
             'article_id': self.article_id,
             'parent_id': self.parent_id,
             'up_num': self.up_num,
+            'disabled': self.disabled,
             'children': []
         }
         return comment_dict

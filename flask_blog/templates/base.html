@@ -32,8 +32,8 @@
                 <div class="f_r">
                 {% if current_user.is_authenticated %}
                     <div class="dropdown">
-                    <a href="#">
-                    <img class="portrait" src="{{ current_user.gravatar(size=50) }}"></a>
+                    <a href="{{ url_for('main.user', username=current_user.username) }}">
+                    <img class="portrait portrait_60" src="{{ current_user.avatar_url }}"></a>
                     <ul >
                         <li><a href="{{ url_for('main.user',username=current_user.username) }}">
                             个人主页</a></li>

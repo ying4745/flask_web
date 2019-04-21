@@ -1,81 +1,28 @@
-/**
- * Created by a12345 on 2018/12/6.
- */
 
-// 生成评论html
-function makeCommentTree(comment_list) {
-    var htmls = '';
-    $.each(comment_list, function (i, comment) {
-
-        var comment_str = '<div class="comment_item"><ul class="comment_title clearfix">' +
-            '<li><a href="#"><img src="' +
-            comment['author_img'] +
-            '" class="portrait"></a></li>' +
-            '<li><a href="#" class="comment_user">' +
-            comment['author'] + '</a></li>' +
-            '<li><span class="comment_time">' +
-            comment['timestamp'] + '</span></li>' +
-            '<li class="f_r"><a href="javascript:;" onclick="isComFavorite(this)"><i class="iconfont ' +
-            comment['isFav'] + '"></i><span>(' +  comment['up_num'] +
-            ')</span></a></li><li class="f_r"><a href="javascript:;" class="reply_btn">' +
-            '<i class="iconfont icon-icon_huifu-xian huifu"></i></a></li>' +
-            '</ul><div class="comment_content">' + comment['content_html'] +
-            '</div><span comid="' + comment['id'] +
-            '" articleid="' +comment['article_id'] +'"></span>';
-        // 主评论加一个外层div
-        if (!comment['parent_id']) {
-             comment_str =  '<div class="max_content">' + comment_str;
-        };
-        if (comment['children']) {
-            comment_str += makeCommentTree(comment['children']);
+// 展开 收起评论条件判断
+function add_expand_btn() {
+    var com_boxes = $('.max_content').children();
+    for (var i=0;i<com_boxes.length;i++) {
+        com_box = $(com_boxes[i]);
+        if (com_box.height() > 170) {
+            com_box.parent().after('<botton onclick="expand_com(this)" class="expand_btn com_btn">展开评论</botton>')
         }
-        comment_str += '</div>';
-        if (!comment['parent_id']) {
-             comment_str = comment_str + '</div>';
-        };
-        htmls += comment_str;
-    });
-
-    return htmls;
-};
+    }
+}
 
 // ajax GET请求评论数据
 function ajax_comments() {
     var article_id = $('#comment_box').attr('a_id');
     var url = '/article/' + article_id + '/comments';
-    $.get(url, function (res) {
-        if (res.errno === '0') {
-            html_str = makeCommentTree(res.data);
-            $('#comment_box').html(html_str);
+    $.get(url, function (data, status) {
+        if (status === 'success'){
+            $('#comment_box').html(data);
 
-            $('.reply_btn').click(function () {
-                $('.reply_textarea').parents('.max_content').css('max-height', '170px');
-                $('.reply_textarea').remove();
-                $(this).closest('ul').next().after(
-                    '<div class="reply_textarea"><textarea class="com_text" name="cli_content"></textarea>' +
-                    '<input type="botton" class="com_btn" onclick="bot_com(this)" style="width: 28px;" value="评论"></div>'
-                );
-                $('.com_text').focus();
-
-                // 回复评论时，完全显示评论和表单
-                var com_box_obj = $('.reply_textarea').parents('.max_content').children();
-                $('.reply_textarea').parents('.max_content').css('max-height', com_box_obj.outerHeight(true));
-                if ($('.reply_textarea').parents('.max_content').next().prop('tagName') == 'BOTTON') {
-                    $('.reply_textarea').parents('.max_content').next().text('收起评论');
-                };
-            });
-
-            // 展开 收起评论条件判断
-            var com_boxes = $('.max_content').children();
-            for (var i=0;i<com_boxes.length;i++) {
-                com_box = $(com_boxes[i]);
-                if(com_box.height() > 170) {
-                    com_box.parent().after('<botton onclick="expand_com(this)" class="expand_btn com_btn">展开评论</botton>')
-                };
-            };
-
+            add_expand_btn();
+        } else {
+            $('#comment_box').html('<h3>加载评论出错</h3>' + status);
         }
-    }, 'json');
+    });
 }
 
 // ajax发送评论
@@ -108,7 +55,7 @@ function bot_com(obj) {
     var thisobj=$(obj);
     var com_id = thisobj.parent().next().attr('comid');
     var article_id = thisobj.parent().next().attr('articleid');
-    var com_content = thisobj.prev().val();
+    var com_content = thisobj.prev().text();
     params = {'com_id':com_id, 'article_id':article_id, 'com_content':com_content};
     $.post('/article/add/comment', params, function (res) {
         if (res.errno == '0') {
@@ -136,6 +83,7 @@ function expand_com(obj) {
         show_con.text('收起评论');
     }
 };
+
 // 点赞
 function add_favorite(current_elem, fav_id, fav_type) {
     var params = {'fav_id':fav_id, 'fav_type':fav_type};
@@ -179,4 +127,28 @@ function isArticleFavorite(obj) {
 $(function () {
     // 加载评论
     ajax_comments();
+
+    // 绑定评论回复按钮事件
+    $(document).on('click', '.reply_btn', function() {
+        // 将展开的评论收起来
+        $('.reply_textarea').parents('.max_content').css('max-height', '170px');
+        $('.reply_textarea').parents('.max_content').next().text('展开评论');
+        // 移除其他评论下的子评论框
+        $('.reply_textarea').remove();
+        // 当前点击按钮下添加子评论框
+        $(this).closest('ul').next().after(
+        '<div class="reply_textarea"><div id="com_text" class="com_text" contenteditable="true"></div>' +
+        '<input type="botton" class="com_btn" onclick="bot_com(this)" style="width: 28px;" value="评论"></div>'
+        );
+        // 输入框获得焦点
+        $('.com_text').focus();
+
+        // 回复评论时，完全显示评论和表单
+        var com_box_obj = $('.reply_textarea').parents('.max_content').children();
+        $('.reply_textarea').parents('.max_content').css('max-height', com_box_obj.outerHeight(true));
+        if ($('.reply_textarea').parents('.max_content').next().prop('tagName') === 'BOTTON') {
+            $('.reply_textarea').parents('.max_content').next().text('收起评论');
+        }
+    });
+
 });

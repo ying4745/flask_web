@@ -1,14 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, widgets, \
-    SelectField, SelectMultipleField
-from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
-from wtforms.validators import DataRequired, Length, Email, Regexp
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import ValidationError
+from wtforms.validators import DataRequired, Length, Email, Regexp
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
+from wtforms import StringField, SubmitField, TextAreaField, widgets, SelectField
+
 from ..models import Role, User, Tag, Category
-from flask_pagedown.fields import PageDownField
+from .. import avatar
 
 
 class UserForm(FlaskForm):
+    avatar = FileField('头像上传', validators=[FileAllowed(avatar,'只能上传图片')])
     name = StringField('姓名', validators=[Length(0, 64)])
     location = StringField('地址', validators=[Length(0, 64)])
     about_me = TextAreaField('自我简介')

@@ -11,7 +11,7 @@
             {% endif %}
         </div>
         <div class="follow-img f_l"><a href="{{ url_for('main.user', username=follow.user.username) }}">
-            <img src="{{ follow.user.gravatar(size=50) }}"></a></div>
+            <img src="{{ follow.user.avatar_url }}" class="portrait_60"></a></div>
         <div class="follow-text"><h2><a href="{{ url_for('main.user', username=follow.user.username) }}">
             {{ follow.user.username }}</a></h2>
             <p class="follow-about">{% if follow.user.about_me %}{{ follow.user.about_me }} {% endif %}</p>

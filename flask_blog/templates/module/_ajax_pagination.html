@@ -14,7 +14,7 @@
             </li>
             {% else %}
             <li>
-                <a href="##" onclick=showAtBottom("{{ url_for(endpoint,username=user.username,page=p) }}")>{{ p }}</a>
+                <a href="javascript:;" onclick=showAtBottom("{{ url_for(endpoint,username=user.username,page=p) }}")>{{ p }}</a>
             </li>
             {% endif %}
         {% else %}

@@ -8,7 +8,7 @@
     <h1>评论管理</h1>
 </div>
 {% set moderate = True %}
-{% include 'module/_comments.html' %}
+{% include 'main/article_comment.html' %}
 {% if pagination %}
 <div class="pagination">
     {{ macros.pagination_widget(pagination, '.moderate') }}

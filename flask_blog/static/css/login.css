@@ -39,7 +39,7 @@
     overflow: hidden;
 }
 .form-top-l {
-    font-size: 260%;
+    font-size: 180%;
     margin-left: 20px;
 }
 .form-top-r {
@@ -73,6 +73,16 @@
     color: #666;
     vertical-align: middle;
     border-radius: 4px;
+}
+.hide_avatar {
+    display: none;
+}
+.avatar_img img {
+    width: 80px;
+    height: 80px;
+    margin-left: 120px;
+    border-radius: 50%;
+    border: 1px solid #c9d2d8;
 }
 .form-con:focus {
 	border: 1px solid #AAA;

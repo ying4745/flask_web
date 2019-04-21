@@ -8,42 +8,49 @@
         <div class="form-title">
             <h3 class="form-top-l f_l" >修改个人资料</h3>
         </div>
-        <form  role="form" method="post">
-           {{ form.hidden_tag() }}
+        <form  role="form" method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            {% if form.avatar %}
+            <div class="form-item">
+                <div class="label-con" style="line-height: 100px">修改头像</div>
+               <label class="avatar_img" for="avatar"><img src={{ user_avatar }}></label>
+               {{ render_message(form.avatar,class='hide_avatar',placeholder='上传头像') }}
+                </div>
+            {% endif %}
             {% if form.email %}
             <div class="form-item">
-               <label class="label-con"><span class="required">*</span>
-                   {{ form.email.label }}</label>
+               <div class="label-con"><span class="required">*</span>
+                   {{ form.email.label }}</div>
                {{ render_message(form.email,class='form-con',placeholder='电子邮箱') }}
             </div>
             {% endif %}
             {% if form.username %}
             <div class="form-item">
-               <label class="label-con"><span class="required">*</span>
-                   {{ form.username.label }}</label>
+               <div class="label-con"><span class="required">*</span>
+                   {{ form.username.label }}</div>
                    {{ render_message(form.username,class='form-con',placeholder='用户名') }}
             </div>
             {% endif %}
             {% if form.role %}
             <div class="form-item">
-               <label class="label-con"><span class="required">*</span>
-                   {{ form.role.label }}</label>
+               <div class="label-con"><span class="required">*</span>
+                   {{ form.role.label }}</div>
                    {{ render_message(form.role,class='form-con') }}
             </div>
             {% endif %}
             <div class="form-item">
-               <label class="label-con"><span class="required">*</span>
-                   {{ form.name.label }}</label>
+               <div class="label-con"><span class="required">*</span>
+                   {{ form.name.label }}</div>
                    {{ render_message(form.name,class='form-con',placeholder='昵称') }}
             </div>
             <div class="form-item">
-               <label class="label-con"><span class="required">*</span>
-                   {{ form.location.label }}</label>
+               <div class="label-con"><span class="required">*</span>
+                   {{ form.location.label }}</div>
                    {{ render_message(form.location,class='form-con',placeholder='地址') }}
             </div>
             <div class="form-item">
-               <label class="label-con"><span class="required">*</span>
-                   {{ form.about_me.label }}</label>
+               <div class="label-con"><span class="required">*</span>
+                   {{ form.about_me.label }}</div>
                    {{ render_message(form.about_me,class='form-con',placeholder='个人简介') }}
             </div>
 
@@ -53,4 +60,21 @@
        </form>
     </div>
 </div>
+{% endblock %}
+{% block script_bottom %}
+    <script>
+        // 找到头像的input标签绑定change事件
+        $("#avatar").change(function() {
+            // 1. 创建一个读取文件的对象
+            var fileReader =  new FileReader();
+            // 取到当前选中的头像文件
+            // console.log(this.files[0]);
+            // 读取你选中的那个文件
+            fileReader.readAsDataURL(this.files[0]); // 读取文件需要时间
+            fileReader.onload = function() {
+            // 2. 等上一步读完文件之后才把图片加载到img标签中
+            $(".avatar_img").children().attr("src", fileReader.result);
+            };
+        });
+    </script>
 {% endblock %}

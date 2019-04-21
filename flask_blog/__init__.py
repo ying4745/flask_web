@@ -1,10 +1,13 @@
+import os
+
 from flask import Flask
 from config import config
-from .extensions import moment, mail, login_manager, flask_admin
-from .models import db, User, Article, Comment, Tag, Category
-from . import admin
-import os
 import flask_whooshalchemyplus
+from flask_uploads import configure_uploads, patch_request_class
+
+from .extensions import moment, mail, login_manager, flask_admin, avatar
+from .models import db, User, Article, Comment, Tag, Category
+from . import admin  # 必须先导入上面的
 
 
 flask_admin.add_view(admin.UserView(User, db.session, name='用户管理'))
@@ -30,6 +33,11 @@ def create_app(config_name):
     flask_admin.init_app(app)
     flask_whooshalchemyplus.init_app(app)
 
+    # 上传文件
+    configure_uploads(app, avatar)
+    patch_request_class(app, 6*1024*1024)  # 限制上传大小 6M
+
+    # cache.init_app(app)
 
     from .main import main as main_blueprint  # 注册蓝本
     app.register_blueprint(main_blueprint)

@@ -1,7 +1,7 @@
 {% for com in com_articles %}
 <ul class="rank">
     <li>
-        <a href="{{ url_for('main.article', id=com.id) }}" target="_blank">
+        <a href="{{ url_for('main.article', id=com.id) }}">
             {{ com.title }}</a>
     </li>
     <li class="ph">

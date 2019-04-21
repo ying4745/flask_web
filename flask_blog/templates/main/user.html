@@ -5,7 +5,7 @@
 
 {% block page_content %}
 <div class="profile clearfix s_box">
-    <img class="portrait f_l" src="{{ user.gravatar(size=200) }}" title="个人头像" width="200" height="200" >
+    <img class="portrait f_l" src="{{ user.avatar_url }}" title="个人头像" width="200" height="200" >
     <div class="profile-text">
         <h3>{{ user.username }}</h3>
         {% if user.name %}<p><b>昵称：</b>{{ user.name }}</p>{% endif %}

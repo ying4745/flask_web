@@ -1,0 +1,49 @@
+{% macro generate_comment(comments) %}
+    {%- for comment in comments -%}
+        {% if not comment.parent_id %}
+            <div class="max_content">
+        {% endif %}
+        <div class="comment_item">
+            <ul class="comment_title clearfix">
+                <li><a href="{{ url_for('main.user', username=comment.author) }}">
+                    <img src="{{ comment.author_img }}" class="portrait portrait_26"></a></li>
+                <li><a href="{{ url_for('main.user', username=comment.author) }}" class="comment_user">
+                    {{ comment.author }}</a></li>
+                <li><span class="comment_time">{{ comment.timestamp }}</span></li>
+                {% if not comment.parent_id %}
+                <li><span>{{ loop.index }}楼</span></li>
+                {% endif %}
+                <li class="f_r"><a href="javascript:;" onclick="isComFavorite(this)">
+                    <i class="iconfont {{ comment.isFav }}"></i><span>({{ comment.up_num }})</span></a></li>
+                <li class="f_r"><a href="javascript:;" class="reply_btn">
+                    <i class="iconfont icon-icon_huifu-xian huifu"></i></a></li>
+            </ul>
+            <div class="comment_content">
+                {% if current_user.can(Permission.MODERATE_COMMENTS) or not comment.disabled %}
+                        {{ comment.content_html | safe }}
+                {% endif %}
+                {% if comment.disabled %}
+                    <p><i style="color: red;">此评论已被屏蔽</i></p>
+                {% endif %}
+                {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+                    <div class="moderate">
+                        <button id ="com_{{ comment.id }}" {% if comment.disabled %} class="btn_follow_blue"
+                            {% else %} class="btn_follow_blue btn_follow_red"{% endif %}
+                            onclick=com_disa({{ comment.id }})>
+                        {% if comment.disabled %}解禁{% else %}屏蔽{% endif %}</button>
+                    </div>
+                {% endif %}
+            </div>
+            <span comid="{{ comment.id }}" articleid="{{ comment.article_id }}"></span>
+
+            {% if comment.children %}
+                {{ generate_comment(comment.children) }}
+            {% endif %}
+        </div>
+        {% if not comment.parent_id %}
+            </div>
+        {% endif %}
+    {%- endfor -%}
+{% endmacro %}
+
+{{ generate_comment(comments) }}

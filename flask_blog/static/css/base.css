@@ -159,6 +159,15 @@ a.login {
     border-radius: 50%;
     border: 1px solid #c9d2d8;
 }
+.portrait_60 {
+	width: 60px;
+	height: 60px;
+}
+.portrait_26 {
+	width: 26px;
+	height: 26px;
+}
+
 .dropdown ul {
     display: none;
     width: 80px;
@@ -265,8 +274,9 @@ footer {
 }
 .footer p {
     font-size: 13px;
-	line-height: 20px;
-	text-align: center
+	line-height: 17px;
+	text-align: center;
+	margin:3px 0 0;
 }
 .footer p a{
 	color: #bbb;

@@ -1,15 +1,14 @@
 {% extends "main/index.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}{{ articles[0].title }}{% endblock %}
+{% block title %}{{ article.title }}{% endblock %}
 
 {% block page_content %}
-{% for article in articles %}
 <div class="article s_box">
     <h3 class="article_title"><a href="{{ url_for('main.article', id=article.id) }}">
     {{ article.title }}</a></h3>
     <ul class="article_date">
-        <li><i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm:ss') }}</li>
+        <li><i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY/M/D h:mm') }}</li>
         <li>{% for tag in article.tags.all() %}
                 <i class="iconfont icon-biaoqian"></i>
                  <a href="{{ url_for('main.tag', name=tag.name) }}">{{ tag.name }}</a>
@@ -40,7 +39,6 @@
             {% endif %}
         </div>
 </div>
-{% endfor %}
 
 <div class="s_box">
 <h3 id="comments">评论</h3>
@@ -55,7 +53,7 @@
             {% endfor %}
         {% endif %}
         {{ form.content(class='comment_table',placeholder='严禁讨论涉及政治，宗教相关话题！') }}
-        <input type="text" style="display:none" name="article_id" value="{{ articles[0].id }}">
+        <input type="text" style="display:none" name="article_id" value="{{ article.id }}">
         <input type="reset" id="input_res" style="display:none">
         {{ form.submit(class='com_btn', id='form_sub') }}
     </form>
@@ -63,11 +61,7 @@
 {% endif %}
 </div>
 
-{#{% if comments %}#}
-{#{% include 'module/_comments.html' %}#}
-{#{% endif %}#}
-
-<div id="comment_box" class="s_box" a_id="{{ articles[0].id }}"></div>
+<div id="comment_box" class="s_box" a_id="{{ article.id }}"></div>
 
 
 {% endblock %}
@@ -76,30 +70,42 @@
     <div class="tit01 s_box">
         <dl class="tit-author clearfix">
             <dt>
-            <a href="{{ url_for('main.user', username=articles[0].author.username) }}">
-                <img class="portrait" src="{{ articles[0].author.gravatar(size=60) }}"></a>
+            <a href="{{ url_for('main.user', username=article.author.username) }}">
+                <img class="portrait portrait_60" src="{{ article.author.avatar_url }}"></a>
             </dt>
             <dd>
-            <h3><a href="{{ url_for('main.user', username=articles[0].author.username) }}">
-                    {{ articles[0].author.username }}</a></h3>
+            <h3><a href="{{ url_for('main.user', username=article.author.username) }}">
+                    {{ article.author.username }}</a></h3>
             </dd>
+        <div class="show_follow">
+            {% if current_user.can(Permission.FOLLOW) and article.author != current_user %}
+                <button id ='{{ article.author.id }}'
+                        {% if not current_user.is_following(article.author) %} class="btn_follow_blue"
+                        {% else %} class="btn_follow_blue btn_follow_red"{% endif %}
+                    onclick=follow('{{ article.author.username }}',{{ article.author.id }})>
+                {% if not current_user.is_following(article.author) %}+ 关注{% else %}取消关注{% endif %}</button>
+            {% endif %}
+            {% if current_user.is_authenticated and article.author != current_user and article.author.is_following(current_user) %}
+            <span class="btn_follow_green">他关注了你</span>
+            {% endif %}
+        </div>
         </dl>
         <div class="tit-content clearfix">
             <dl>
                 <dt>原创</dt>
-                <dd>{{ articles[0].author.articles.count() }}</dd>
+                <dd>{{ article.author.articles.count() }}</dd>
             </dl>
             <dl>
                 <dt>粉丝</dt>
-                <dd>{{ articles[0].author.followers.count() - 1 }}</dd>
+                <dd>{{ article.author.followers.count() - 1 }}</dd>
             </dl>
             <dl>
                 <dt>关注</dt>
-                <dd>{{ articles[0].author.followed.count() - 1 }}</dd>
+                <dd>{{ article.author.followed.count() - 1 }}</dd>
             </dl>
             <dl>
                 <dt>评论</dt>
-                <dd>{{ articles[0].author.comments.count() }}</dd>
+                <dd>{{ article.author.comments.count() }}</dd>
             </dl>
         </div>
     </div>
@@ -110,7 +116,7 @@
 {#{% block pagination %}#}
 {#{% if pagination %}#}
 {#{{ macros.pagination_widget(pagination, '.article',#}
-{#fragment='#comments', id=articles[0].id) }}#}
+{#fragment='#comments', id=article.id) }}#}
 {#{% endif %}#}
 {#{% endblock %}#}
 

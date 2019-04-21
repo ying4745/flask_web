@@ -10,7 +10,7 @@
                     {{ article.author.username }}</a>
             </li>
             <li>
-                <i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY年M月D日a h:mm') }}
+                <i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY/M/D h:mm') }}
             </li>
             <li>
                 <a href="{{ url_for('main.category', name=article.category.name) }}">
@@ -27,6 +27,9 @@
             <li>
                 <a href="{{ url_for('main.article', id=article.id) }}#comments">
                    <i class="iconfont icon-pinglun1"></i> {{ article.comments.count() }}</a>
+            </li>
+            <li>
+                <i class="iconfont icon-dianzan"></i> <span>({{ article.up_num }})</span>
             </li>
         </ul>
     </div>

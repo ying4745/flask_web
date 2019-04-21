@@ -54,7 +54,7 @@
 }
 
 .article_content p, .comment_content p {
-    margin-left: 20px;
+    margin-left: 10px;
 	text-indent: 1em
 }
 /* 文章评论 */
@@ -119,6 +119,9 @@ a .btn_blue:hover {
     margin: 12px;
 }
 
+.comment_title {
+    margin: 2px 0 0 2px;
+}
 .comment_title li {
     float: left;
     margin-right: 10px;
@@ -132,22 +135,28 @@ a .btn_blue:hover {
 .comment_title li a:hover{
     color: #474747;
 }
+.comment_title li a img{
+    margin-left: 0;
+}
 .comment_title li.f_r {
     float: right;
     margin-right: 20px;
     font-size: 14px;
 }
-.comment_title li img {
-    margin: 0px;
-}
 .comment_content {
-    padding: 10px 20px 5px 35px;
+    padding: 10px 20px 5px 20px;
     line-height: 26px;
     font-size: 16px;
     clear: both;
     border-bottom: 1px dashed #bbbbbb;
+    position: relative;
+}
+div.comment_content p {
+    text-indent: 10px;
+    margin: 0 0 3px;
 
 }
+
 .moderate {
     position: absolute;
     right: 10px;
@@ -159,7 +168,16 @@ a .btn_blue:hover {
     overflow: hidden;
 }
 .com_text {
-    width: 99%;
+    min-height: 20px;
+    max-height: 300px;
+    outline: 0;
+    border: 1px solid #a0b3d6;
+    line-height: 24px;
+    padding: 3px;
+    word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #fff;
 }
 
 /* 回复 点赞图标微调 */
@@ -290,7 +308,7 @@ button {
     margin-right: 25px;
 }
 .follow-img img {
-    border-radius: 5px;
+    border-radius: 50%;
 }
 .follow-text {
     overflow: hidden;
