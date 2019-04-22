@@ -13,12 +13,15 @@
 - 使用`flask-cache`实现缓存，缓存在`redis`中
 ## 安装依赖环境
 安装数据库MySQL：
+
 `sudo apt-get install mysql-server mysql-client` # 中途会让你输入一次root用户密码
 
 安装部署相关依赖：
+
 `sudo apt-get install -y virtualenv nginx supervisor gunicorn`
 
-创建虚拟环境、使用pip安装依赖包：  
+创建虚拟环境、使用pip安装依赖包：
+
 `pip install -r requirements.txt`
 
 ### 配置
@@ -34,13 +37,17 @@
 
 ### 创建数据库
 在项目目录下执行`python manage.py shell`
+
 `db.create_all()` 创建数据表，（要提前创建好所使用的数据库）
+
 `Role.insert_roles()` 生成管理角色
 
 ### 创建超级用户
+
 `python manage.py createsuperuser`
 
 ### 开始运行：
+
 `python manage.py runserver`
 
  如果成功运行起来，浏览器打开: http://127.0.0.1:8000/  就可以看到效果了。
