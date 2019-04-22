@@ -30,7 +30,7 @@
 
 我是在`Ubuntu`环境中使用`Nginx`+`Gunicorn`+`supervisor`来部署的，具体可参考我的这篇笔记：
 
->[Flask+Mysql+Nginx+Gunicorn+Supervisor 网站部署 流程](http://note.youdao.com/noteshare?id=&sub=B0F74E8E77D94B93AE37A37E3E9F3A32)
+>[Flask+Mysql+Nginx+Gunicorn+Supervisor 网站部署 流程](http://www.balingguan.com/article/103)
 
 
 ## 运行
