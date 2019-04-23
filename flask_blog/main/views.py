@@ -4,7 +4,7 @@ from flask import render_template, flash, url_for, redirect, request, abort, \
     make_response
 
 from . import main
-from flask_blog import db
+from flask_blog import db, cache
 from .forms import ArticleForm, CommentForm
 from flask_blog.utils.decorators import permission_required, confirmed
 from ..models import User, Permission, Article, Tag, Category, UserFavorite
@@ -12,10 +12,15 @@ from flask_blog.utils.select_sql import get_article_pagination, get_hot_click_ar
     get_all_tags
 
 
+def is_cache(*args, **kwargs):
+    """登录了不启用缓存"""
+    return current_user.is_authenticated
+
+
 @main.route('/')
+@cache.cached(timeout=180, key_prefix='index_data', unless=is_cache)
 def index():  # 主页
     page = request.args.get('page', 1, type=int)
-
     show_followed = False
     if current_user.is_authenticated:
         show_followed = bool(request.cookies.get('show_followed', ''))
@@ -36,10 +41,10 @@ def index():  # 主页
 
 
 @main.route('/tag/<name>', methods=['GET', 'POST'])
+@cache.cached(timeout=180)  # 默认缓存键名为request.path
 def tag(name):  # 标签文章列表
     tag = Tag.query.filter_by(name=name).first_or_404()
     page = request.args.get('page', 1, type=int)
-
     pagination, articles = get_article_pagination(tag.articles, page)
 
     views_articles, com_articles = get_hot_click_articles(tag.articles)
@@ -52,10 +57,10 @@ def tag(name):  # 标签文章列表
 
 
 @main.route('/category/<name>', methods=['GET', 'POST'])
+@cache.cached(timeout=180)
 def category(name):  # 分类文章列表
     category = Category.query.filter_by(name=name).first_or_404()
     page = request.args.get('page', 1, type=int)
-
     pagination, articles = get_article_pagination(category.articles, page)
 
     views_articles, com_articles = get_hot_click_articles(category.articles)
@@ -75,6 +80,7 @@ def search():
 
 
 @main.route('/search_results/<query_con>')
+@cache.cached(timeout=180)
 def search_results(query_con):
     results = Article.query.whoosh_search(query_con)
     page = request.args.get('page', 1, type=int)
@@ -94,7 +100,7 @@ def search_results(query_con):
 @login_required
 def show_all():
     resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '', max_age=30 * 24 * 60 * 60)
+    resp.set_cookie('show_followed', '', max_age=24 * 60 * 60)
     return resp
 
 
@@ -102,7 +108,7 @@ def show_all():
 @login_required
 def show_followed():
     resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '1', max_age=30 * 24 * 60 * 60)
+    resp.set_cookie('show_followed', '1', max_age=24 * 60 * 60)
     return resp
 
 
@@ -210,47 +216,47 @@ def article(id):  # 单独显示文章
                            com_articles=com_articles, is_a_fav=is_a_fav)
 
 
-    # @main.route('/edit_about', methods=['GET', 'POST'])   # 编辑自我介绍
-    # @login_required
-    # @confirmed
-    # @permission_required(Permission.WRITE_ARTICLES)
-    # def edit_about():
-    #     article = Article.query.get_or_404(106)
-    #     form = ArticleForm()
-    #     if current_user.can(Permission.WRITE_ARTICLES) and \
-    #             form.validate_on_submit():
-    #         article.title = form.title.data
-    #         article.content = form.content.data
-    #         for tag in article.tags.all():
-    #             article.tags.remove(tag)
-    #         for tag in form.tags.data:
-    #             article.tags.append(tag)
-    #         db.session.add(article)
-    #         flash('文章已经更新！')
-    #         return redirect(url_for('.about'))
-    #     form.title.data = article.title
-    #     form.content.data = article.content
-    #     return render_template('main/edit_article.html', form=form)
+# @main.route('/edit_about', methods=['GET', 'POST'])   # 编辑自我介绍
+# @login_required
+# @confirmed
+# @permission_required(Permission.WRITE_ARTICLES)
+# def edit_about():
+#     article = Article.query.get_or_404(106)
+#     form = ArticleForm()
+#     if current_user.can(Permission.WRITE_ARTICLES) and \
+#             form.validate_on_submit():
+#         article.title = form.title.data
+#         article.content = form.content.data
+#         for tag in article.tags.all():
+#             article.tags.remove(tag)
+#         for tag in form.tags.data:
+#             article.tags.append(tag)
+#         db.session.add(article)
+#         flash('文章已经更新！')
+#         return redirect(url_for('.about'))
+#     form.title.data = article.title
+#     form.content.data = article.content
+#     return render_template('main/edit_article.html', form=form)
 
 
-    # @main.route('/about', methods=['GET', 'POST'])
-    # def about():  # 关于我
-    #     article = Article.query.get_or_404(106)
-    #     form = CommentForm()
-    #     if form.validate_on_submit():
-    #         comment = Comment(content=form.content.data,
-    #                           article=article,
-    #                           author=current_user._get_current_object())
-    #         db.session.add(comment)
-    #         flash('你的评论已经发表了')
-    #         return redirect(url_for('.about', page=-1))
-    #     page = request.args.get('page', 1, type=int)
-    #     if page == -1:
-    #         page = (article.comments.count() - 1) // \
-    #             current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
-    #     pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
-    #         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-    #         error_out=False)
-    #     comments = pagination.items
-    #     return render_template('main/about_me.html', comments=comments, form=form,
-    #                            pagination=pagination, article=article)
+# @main.route('/about', methods=['GET', 'POST'])
+# def about():  # 关于我
+#     article = Article.query.get_or_404(106)
+#     form = CommentForm()
+#     if form.validate_on_submit():
+#         comment = Comment(content=form.content.data,
+#                           article=article,
+#                           author=current_user._get_current_object())
+#         db.session.add(comment)
+#         flash('你的评论已经发表了')
+#         return redirect(url_for('.about', page=-1))
+#     page = request.args.get('page', 1, type=int)
+#     if page == -1:
+#         page = (article.comments.count() - 1) // \
+#             current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+#     pagination = article.comments.order_by(Comment.timestamp.asc()).paginate(
+#         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+#         error_out=False)
+#     comments = pagination.items
+#     return render_template('main/about_me.html', comments=comments, form=form,
+#                            pagination=pagination, article=article)

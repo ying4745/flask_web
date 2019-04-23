@@ -62,6 +62,7 @@
 </div>
 {% endblock %}
 {% block script_bottom %}
+    {{ super() }}
     <script>
         // 找到头像的input标签绑定change事件
         $("#avatar").change(function() {

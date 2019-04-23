@@ -142,6 +142,16 @@ class User(db.Model, UserMixin):
     def avatar_url(self): # 头像url
         return avatar.url(self.avatar_img) if self.avatar_img else None
 
+    @property
+    def register_time_format(self):
+        local_time = self.member_since + datetime.timedelta(hours=8)
+        return local_time.strftime('%Y/%m/%d')
+
+    @property
+    def last_time_format(self):
+        local_time = self.last_seen + datetime.timedelta(hours=8)
+        return local_time.strftime('%Y/%m/%d %H:%M')
+
     def verify_password(self, password):  # 检查用户输入的密码，对就返回True
         return check_password_hash(self.password_hash, password)
 
@@ -354,6 +364,11 @@ class Article(db.Model):
     def increase_views(self):
         self.views += 1
 
+    @property
+    def local_time_format(self):
+        local_time = self.timestamp + datetime.timedelta(hours=8)
+        return local_time.strftime('%Y/%m/%d %H:%M')
+
     @staticmethod  # 此装饰器表示此方法以类名调用
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
@@ -370,6 +385,8 @@ class Article(db.Model):
             tags=allowed_tags, attributes=attrs, styles=styles, strip=True))
         lines = value.split('\n')
         temp = '\n'.join(lines[:5])
+        if len(temp) > 400:
+            temp = value[:400]
         target.summary = bleach.linkify(bleach.clean(
             markdown(temp, output_format='html'),
             tags=allowed_tags, attributes=attrs, styles=styles, strip=True))
@@ -397,8 +414,10 @@ class Comment(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=True)  # 父级评论ID
     up_num = db.Column(db.Integer, default=0)  # 点赞数
 
-    def utc_to_local(self):
-        return self.timestamp + datetime.timedelta(hours=8)
+    @property
+    def local_time_format(self):
+        local_time = self.timestamp + datetime.timedelta(hours=8)
+        return local_time.strftime('%Y/%m/%d %H:%M:%S')
 
     @property
     def get_parent_comment_author(self):
@@ -412,7 +431,7 @@ class Comment(db.Model):
             'id': self.id,
             'author_img': self.author.avatar_url,
             'content_html': self.content_html,
-            'timestamp': self.utc_to_local().strftime('%Y/%m/%d %H:%M:%S'),
+            'timestamp': self.local_time_format,
             'author': self.author.username,
             'article_id': self.article_id,
             'parent_id': self.parent_id,
@@ -435,6 +454,7 @@ db.event.listen(Comment.content, 'set', Comment.on_changed_content)
 
 class UserFavorite(db.Model):
     __tablename__ = 'userfavorite'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     fav_id = db.Column(db.Integer, default=0)

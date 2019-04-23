@@ -8,9 +8,9 @@
     <title>{% block title %}左岸个人博客-人生苦短我用python{% endblock %}</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='iconfont/iconfont.css') }}">
 
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
 
     {% endblock %}
 </head>
@@ -103,14 +103,10 @@
 
     {% block scripts %}
     <!--<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>-->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-    <!--[if lt IE 9]>
-    <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
-    <![endif]-->
-    <script type=text/javascript src="{{ url_for('static', filename='js/base.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
-    {{ moment.include_moment() }}
-    {{ moment.lang("zh-CN") }}
+    {% assets "main_js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
     {% endblock %}
 </body>
 </html>

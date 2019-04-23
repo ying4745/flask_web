@@ -2,9 +2,9 @@
 {% import "_macros.html" as macros %}
 
 {% block head %}
-{{ super() }}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 {% endblock %}
 
 {% block content %}

@@ -32,6 +32,8 @@ class UserView(ModelView):
         'last_seen': '最后一次登录',
         'role': '角色'
     }
+    # 默认排序
+    column_default_sort = ('id', True)
     # 使用搜索框
     column_searchable_list = ('username', 'name')
     # 隐藏字段不显示

@@ -5,7 +5,8 @@
 
 {% block page_content %}
 <div class="profile clearfix s_box">
-    <img class="portrait f_l" src="{{ user.avatar_url }}" title="个人头像" width="200" height="200" >
+    <img class="portrait f_l" {% if user.avatar_url %}src="{{ user.avatar_url }}"{% endif %}
+         title="个人头像" width="200" height="200" >
     <div class="profile-text">
         <h3>{{ user.username }}</h3>
         {% if user.name %}<p><b>昵称：</b>{{ user.name }}</p>{% endif %}
@@ -17,8 +18,8 @@
         <p><b>邮箱：</b><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
         {% endif %}
         {% if user.about_me %}<p><b>简介：</b>{{ user.about_me }}</p>{% endif %}
-        <p>注册时间为{{ moment(user.member_since).format('LL') }}.
-        最后一次登录时间为{{ moment(user.last_seen).fromNow() }}.</p>
+        <p><b>注册时间：</b>{{ user.register_time_format }}</p>
+        <p><b>最近登录：</b>{{ user.last_time_format }}</p>
         <div class="show_follow">
             {% if current_user.can(Permission.FOLLOW) and user != current_user %}
                 <button id ='{{ user.id }}'{% if not current_user.is_following(user) %} class="btn_follow_blue"

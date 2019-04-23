@@ -132,7 +132,7 @@ $(function () {
     $(document).on('click', '.reply_btn', function() {
         // 将展开的评论收起来
         $('.reply_textarea').parents('.max_content').css('max-height', '170px');
-        $('.reply_textarea').parents('.max_content').next().text('展开评论');
+        $('.reply_textarea').parents('.max_content').nextAll('.expand_btn').text('展开评论');
         // 移除其他评论下的子评论框
         $('.reply_textarea').remove();
         // 当前点击按钮下添加子评论框

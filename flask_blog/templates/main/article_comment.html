@@ -6,7 +6,8 @@
         <div class="comment_item">
             <ul class="comment_title clearfix">
                 <li><a href="{{ url_for('main.user', username=comment.author) }}">
-                    <img src="{{ comment.author_img }}" class="portrait portrait_26"></a></li>
+                    <img {% if comment.author_img %}src="{{ comment.author_img }}"{% endif %}
+                         class="portrait portrait_26"></a></li>
                 <li><a href="{{ url_for('main.user', username=comment.author) }}" class="comment_user">
                     {{ comment.author }}</a></li>
                 <li><span class="comment_time">{{ comment.timestamp }}</span></li>

@@ -5,7 +5,8 @@ from config import config
 import flask_whooshalchemyplus
 from flask_uploads import configure_uploads, patch_request_class
 
-from .extensions import moment, mail, login_manager, flask_admin, avatar
+from .extensions import moment, mail, login_manager, flask_admin, avatar, \
+    cache, assets_env, main_js, article_js
 from .models import db, User, Article, Comment, Tag, Category
 from . import admin  # 必须先导入上面的
 
@@ -37,7 +38,12 @@ def create_app(config_name):
     configure_uploads(app, avatar)
     patch_request_class(app, 6*1024*1024)  # 限制上传大小 6M
 
-    # cache.init_app(app)
+    cache.init_app(app)  # 缓存
+
+    assets_env.init_app(app)  # 压缩css/js
+    # assets_env.register('main_css', main_css)
+    assets_env.register('main_js', main_js)
+    assets_env.register('article_js', article_js)
 
     from .main import main as main_blueprint  # 注册蓝本
     app.register_blueprint(main_blueprint)

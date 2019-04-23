@@ -10,7 +10,7 @@
                     {{ article.author.username }}</a>
             </li>
             <li>
-                <i class="iconfont icon-shijian1"></i> {{ moment(article.timestamp).format('YYYY/M/D h:mm') }}
+                <i class="iconfont icon-shijian1"></i> {{ article.local_time_format }}
             </li>
             <li>
                 <a href="{{ url_for('main.category', name=article.category.name) }}">

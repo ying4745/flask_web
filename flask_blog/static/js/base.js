@@ -76,15 +76,27 @@ function showAtBottom(url){
             $(".profile-content").html("<h3>获取数据失败!</h3>" + status);
         }
     });
-};
+}
+
+function showMessage(message) {
+    var messageJQ = $("<div class='showMessage'>" + message + "</div>");
+    /**先将原始隐藏，然后添加到页面，最后以600的速度下拉显示出来*/
+    messageJQ.hide().appendTo("body").slideDown(500);
+    /**3秒之后自动删除生成的元素*/
+    window.setTimeout(function () {
+       messageJQ.remove();
+    }, 2000);
+}
+
 
 // 关注和取消关注
 function follow(username,id) {
     var btn_this = $('#'+id);
     if (!btn_this.hasClass('btn_follow_red')) {
         $.get('/follow/'+username, function(data,status) {
-            if (status=='success') {
+            if (status==='success') {
                 btn_this.text('取消关注').addClass('btn_follow_red');
+                showMessage(data)
             } else {
                 btn_this.text('异常');
             }
@@ -92,8 +104,9 @@ function follow(username,id) {
     }
     else {
         $.get('/unfollow/'+username, function(data,status) {
-            if (status=='success') {
+            if (status==='success') {
                 btn_this.text('+ 关注').removeClass('btn_follow_red');
+                showMessage(data)
             } else {
                 btn_this.text('异常');
             }

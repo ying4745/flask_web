@@ -1,9 +1,10 @@
+from flask_mail import Mail
 from flask_cache import Cache
 from flask_moment import Moment
 from flask_login import LoginManager
-from flask_mail import Mail
-from flask_admin import Admin, AdminIndexView
 from flask_uploads import UploadSet, IMAGES
+from flask_assets import Environment, Bundle
+from flask_admin import Admin, AdminIndexView
 
 
 mail = Mail()
@@ -25,4 +26,27 @@ login_manager.login_message = '请登录后再访问'
 avatar = UploadSet('avatar', IMAGES)
 
 # 缓存
-# cache = Cache()
+cache = Cache()
+
+# 打包压缩css/js
+assets_env = Environment()
+
+# main_css = Bundle(
+#     'css/index.css',
+#     'css/main.css',
+#     filters='cssmin',
+#     output='assert/css/common.css'
+# )
+
+main_js = Bundle(
+    'js/jquery-3.3.1.min.js',
+    'js/base.js',
+    filters='jsmin',
+    output='assert/js/common.js'
+)
+
+article_js = Bundle(
+    'js/article.js',
+    filters='jsmin',
+    output='assert/js/article_tar.js'
+)

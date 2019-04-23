@@ -10,12 +10,6 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
-    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-    <!--[if lt IE 9]>
-    <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
-    <![endif]-->
-    <script type=text/javascript src="{{ url_for('static', filename='js/base.js') }}"></script>
     {% endblock %}
 </head>
 <body>
@@ -49,6 +43,9 @@
     </div>
 </footer>
 {% block script_bottom %}
+    {% assets "main_js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endblock %}
 </body>
 </html>

@@ -15,8 +15,9 @@
         <div class="follow-text"><h2><a href="{{ url_for('main.user', username=follow.user.username) }}">
             {{ follow.user.username }}</a></h2>
             <p class="follow-about">{% if follow.user.about_me %}{{ follow.user.about_me }} {% endif %}</p>
-            <p class="follow-view"> <span>{% if follow.user.articles.all() %}{{ follow.user.articles.count() }} 文章{% endif %}</span>
-                <span>{% if follow.user.comments.all() %}{{ follow.user.comments.count() }} 评论{% endif %}</span>
+            <p class="follow-view">
+                <span>{% if follow.user.articles.all() %}{{ follow.user.articles.count() }}{% else %}0{% endif %} 文章</span>
+                <span>{% if follow.user.comments.all() %}{{ follow.user.comments.count() }}{% else %}0{% endif %} 评论</span>
                 <span>{% if follow.user.followed.all() %}{{ follow.user.followed.count() - 1 }} 关注{% endif %}</span>
             </p>
         </div>

@@ -7,7 +7,7 @@
 body {
 	font: 15px Microsoft YaHei, Arial, Helvetica, sans-serif;
 	color: #474747;
-	background: url(../images/bg.jpg) repeat
+	background: url(/static/images/bg.jpg) repeat
 }
 html,body {
     height: 100%;
@@ -67,7 +67,7 @@ a:hover {
 }
 
 #wrapper {
-	background: url(../images/footside.jpg) bottom center no-repeat;
+	background: url(/static/images/footside.jpg) bottom center no-repeat;
 	overflow: hidden;
 	min-height: 100%;
 }
@@ -77,11 +77,11 @@ a:hover {
 }
 header {
 	width: 100%;
-	background: url(../images/yuanshan.jpg) right bottom no-repeat;
+	background: url(/static/images/yuanshan.jpg) right bottom no-repeat;
 	height: 230px
 }
 .headtop {
-	background: url(../images/topbg.jpg) repeat-x;
+	background: url(/static/images/topbg.jpg) repeat-x;
 	height: 50px;
 }
 .contenttop {
@@ -110,6 +110,17 @@ header {
     letter-spacing: 2px;
     transition: all 0.5s;
     -ms-transition: all 0.5s;
+}
+/* 关注消息提示框 */
+.showMessage {
+	padding: 8px 20px;
+	border-radius: 5px;
+	background-color: #c2f3cc;
+	position: fixed;
+	top: 12%;
+	left: 36%;
+	color: #484747;
+	font-size: 17px;
 }
 
 /* 查询 */
@@ -196,7 +207,7 @@ nav {
 }
 .navigation {
 	height: 64px;
-	background: url(../images/navbg.png) no-repeat;
+	background: url(/static/images/navbg.png) no-repeat;
 	font-family: "微软雅黑";
 }
 .menu {
@@ -220,7 +231,7 @@ nav {
 }
 .menu ul {
 	position: relative;
-	background: url(../images/menubg.png);
+	background: url(/static/images/menubg.png);
 	z-index: 300;
 }
 .menu li a.menu_active {
@@ -246,20 +257,20 @@ nav {
 }
 /*卷轴*/
 .jztop {
-	background: url(../images/maintopbg.jpg) no-repeat;
+	background: url(/static/images/maintopbg.jpg) no-repeat;
 	width: 1034px;
 	margin: auto;
 	height: 14px;
 }
 .jzend {
-	background: url(../images/mainendbg.jpg) no-repeat;
+	background: url(/static/images/mainendbg.jpg) no-repeat;
 	width: 1034px;
 	margin: auto;
 	height: 14px;
 }
 /*页脚*/
 footer {
-	background: url(../images/footerbg.png) repeat-x;
+	background: url(/static/images/footerbg.png) repeat-x;
 	height: 70px;
 	color: #fff;
 	clear: both;

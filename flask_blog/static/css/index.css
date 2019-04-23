@@ -53,7 +53,8 @@
 }
 .dateview li{
     float: left;
-	margin-right: 10px;
+	margin-right: 5px;
+    line-height: 18px;
 }
 .dateview li a {
 	color: #2d2d2dcc;

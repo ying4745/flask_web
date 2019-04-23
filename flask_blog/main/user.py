@@ -257,8 +257,7 @@ def follow(username):
         return redirect(url_for('.user', username=username))
 
     current_user.follow(user)
-    flash('你关注了%s' % username)
-    return "取消关注"
+    return '你关注了 %s' % username
 
 
 @main.route('/unfollow/<username>')  # 取消关注
@@ -276,8 +275,7 @@ def unfollow(username):
         return redirect(url_for('.user', username=username))
 
     current_user.unfollow(user)
-    flash('你取消了对%s的关注' % username)
-    return "关注"
+    return '你取消了对 %s 的关注' % username
 
 
 @main.route('/followers/<username>')  # 被关注列表
